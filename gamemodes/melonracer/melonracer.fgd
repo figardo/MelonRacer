@@ -1,0 +1,27 @@
+@include "base.fgd"
+
+// 
+@PointClass base(PlayerClass, Angles) studio("models/editor/playerstart.mdl") = gmod_player_start : "gmod player start! (MelonRacer: Legacy spawn point, any spawn point with the name *_player_* will work)"
+[
+
+	spawnflags(flags) =
+	[
+		1 : "Blue Team" : 1
+		2 : "Yellow Team" : 1
+		4 : "Green Team" : 1
+		8 : "Red Team" : 1
+	]
+	
+	MaterialOverride(string) : "Material Override" : "" : "Leave blank for no override"
+	
+]
+
+@PointClass base(Targetname) = gmod_runfunction : 
+	"Runs a LUa function. The function must exist, and have the right syntax. (MelonRacer: Checkpoint logic entity)"
+[
+	
+	FunctionName(string) : "Function Name" : "" : "The function name only (MelonRacer: This should be HitCheckpoint)"
+
+	input RunScriptInteger(integer) : "Runs the script with an integer parameter [ function(integer) ] (MelonRacer: This should be the checkpoint ID, 0 for the starting line and increase by 1 for each checkpoint)"
+	
+]

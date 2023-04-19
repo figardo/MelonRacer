@@ -1,0 +1,48 @@
+"melonracer"
+{
+	"base"		"base"
+	"title"		"MelonRacer"
+	"category"	"pvp"
+	"maps"		"^mr_|^melon_"
+	"menusystem"	"1"
+	"workshopid" "2900976037"
+
+	"settings"
+	{
+		1
+		{
+			"name"		"mr_forwardspeed"
+			"text"		"Forward Speed"
+			"help"		"Set the forward acceleration of the melon."
+			"type"		"Numeric"
+			"default"	"170"
+		}
+		
+		2
+		{
+			"name"		"mr_reversespeed"
+			"text"		"Reverse Speed"
+			"help"		"Set the reverse acceleration of the melon."
+			"type"		"Numeric"
+			"default"	"40"
+		}
+		
+		3
+		{
+			"name"		"mr_laps"
+			"text"		"Laps Per Round"
+			"help"		"How many laps need to be completed to win the round."
+			"type"		"Numeric"
+			"default"	"10"
+		}
+
+		4
+		{
+			"name"		"mr_rounds"
+			"text"		"Number of Rounds (MapVote)"
+			"help"		"If Fretta Map Vote is enabled, a mapvote will be called after this many rounds."
+			"type"		"Numeric"
+			"default"	"6"
+		}
+	}
+}
