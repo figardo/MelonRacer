@@ -14,6 +14,11 @@ Basically, if you want to add a revamped HUD, power-ups, or any other crazy chan
 
 If it's a quality of life change or bug fix? Go right ahead.
 
+## Translation
+
+[![Crowdin](https://badges.crowdin.net/melonracer/localized.svg)](https://crowdin.com/project/melonracer)
+
 ## License
 
 See [LICENSE](https://github.com/figardo/MelonRacer/blob/main/LICENSE).
+
