@@ -49,7 +49,7 @@ function GM:UpdatePositions()
 end
 
 function GM:CheckRoundFinished(ply)
-	if ply.Laps <= NUM_LAPS then return end
+	if ply.Laps <= self.NUM_LAPS then return end
 
 	ply.FinishedRace = true
 

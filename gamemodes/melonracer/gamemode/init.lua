@@ -28,30 +28,44 @@
 	SOFTWARE.
 ]]
 
-local fs = CreateConVar("mr_forwardspeed", "170", FCVAR_NOTIFY, "The speed of the melon when going forwards.")
-local rs = CreateConVar("mr_reversespeed", "40", FCVAR_NOTIFY, "The speed of the melon when going backwards.")
-local mdl = CreateConVar("mr_model", "models/props_junk/watermelon01.mdl", FCVAR_NONE, "The model of the melons.")
-local numlaps = CreateConVar("mr_laps", "10", FCVAR_NOTIFY, "The number of laps to complete in a race.")
-local force = CreateConVar("mr_force", "0", FCVAR_NOTIFY, "Force gamemode into this version regardless of map. Set to 1 for GM9, 2 for GM10, or 3 for 1.3.")
+local mr_forwardspeed = CreateConVar("mr_forwardspeed", "0", FCVAR_NOTIFY, "The speed of the melon when going forwards. 0 = Depends on Map")
+local mr_reversespeed = CreateConVar("mr_reversespeed", "0", FCVAR_NOTIFY, "The speed of the melon when going backwards. 0 = Depends on Map")
+local mr_model = CreateConVar("mr_model", "", FCVAR_NONE, "The model of the melons. Blank = Depends on Map")
+local mr_laps = CreateConVar("mr_laps", "0", FCVAR_NOTIFY, "The number of laps to complete in a race. 0 = Depends on Map")
+local mr_godmode = CreateConVar("mr_godmode", "0", FCVAR_NOTIFY, "Makes the melon invincible. -1 = Force Off, 0 = Depends on Map, 1 = Force On", -1, 1)
+-- local force = CreateConVar("mr_force", "0", FCVAR_NOTIFY, "Force gamemode into this version regardless of map. Set to 1 for GM9, 2 for GM10, or 3 for 1.3.")
 
-local function ResetValues()
-	FORWARD_SPEED = fs:GetInt()
+local defaultForward = 170
+local defaultBack = 40
+local defaultLaps = 10
+local defaultMdl = Model("models/props_junk/watermelon01.mdl")
+function GM:ResetValues()
+	local mapSettings = ents.FindByClass("mr_map_settings")
+	mapSettings = #mapSettings > 1 and mapSettings[1] or nil
 
-	REVERSE_SPEED = -rs:GetInt()
+	local forwardSpeed = mr_forwardspeed:GetInt()
+	self.FORWARD_SPEED = forwardSpeed > 0 and forwardSpeed or (mapSettings and mapSettings.FSpeed or defaultForward)
 
-	PLAYER_MODEL = mdl:GetString()
+	local reverseSpeed = mr_reversespeed:GetInt()
+	self.REVERSE_SPEED = reverseSpeed > 0 and reverseSpeed or (mapSettings and mapSettings.RSpeed or defaultBack)
 
-	NUM_LAPS = numlaps:GetInt()
+	local mdl = mr_model:GetString()
+	self.PLAYER_MODEL = util.IsValidModel(mdl) and mdl or (mapSettings and mapSettings.PlayerModel or defaultMdl)
+	util.PrecacheModel(self.PLAYER_MODEL)
 
-	FORCE_VERSION = force:GetInt()
+	local numLaps = mr_laps:GetInt()
+	self.NUM_LAPS = numLaps > 0 and numLaps or (mapSettings and mapSettings.NumLaps or defaultLaps)
+
+	local godmode = mr_godmode:GetInt()
+	self.GODMODE = godmode > -1 and (godmode < 1 and (mapSettings and mapSettings.GodMode or false) or true) or false
+
+	-- FORCE_VERSION = force:GetInt()
 end
-ResetValues()
-cvars.AddChangeCallback("mr_forwardspeed", ResetValues)
-cvars.AddChangeCallback("mr_reversespeed", ResetValues)
-cvars.AddChangeCallback("mr_model", ResetValues)
-cvars.AddChangeCallback("mr_laps", ResetValues)
 
-TEAM_BLUE = 1
+cvars.AddChangeCallback("mr_forwardspeed", function() GAMEMODE:ResetValues() end)
+cvars.AddChangeCallback("mr_reversespeed", function() GAMEMODE:ResetValues() end)
+cvars.AddChangeCallback("mr_model", function() GAMEMODE:ResetValues() end)
+cvars.AddChangeCallback("mr_laps", function() GAMEMODE:ResetValues() end)
 
 -- Hay guyz I maed a new gamemode its my first gamemode it tuk ages
 
@@ -83,9 +97,8 @@ util.AddNetworkString("MelonRacer_QueryTrack")
 util.AddNetworkString("MelonRacer_SelectTrack")
 
 function GM:Initialize()
-	team.SetUp(TEAM_BLUE, "BLUE", Color(0, 0, 255))
+	team.SetUp(1, "BLUE", Color(0, 0, 255))
 
-	util.PrecacheModel(PLAYER_MODEL)
 	self.Stats = {}
 
 	self.Stats.BestLap		= 0
@@ -265,6 +278,8 @@ function GM:EntityKeyValue(ent, k, v)
 end
 
 function GM:InitPostEntity()
+	self:ResetValues()
+
 	MR_Spawns = {}
 
 	for _, spawn in ipairs(ents.FindByClass("*_player_*")) do

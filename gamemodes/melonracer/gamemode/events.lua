@@ -1,6 +1,5 @@
-local godmode = CreateConVar("mr_godmode", "0", FCVAR_NOTIFY, "Makes the melon invincible.")
-local ultrashortcut = CreateConVar("mr_ultrashortcut", "0", FCVAR_NOTIFY, "Disable check to see if player has passed all checkpoints.")
-local respawntime = CreateConVar("mr_respawntime", "3", FCVAR_NOTIFY, "Change time after death until melon is respawned.")
+local ultrashortcut = CreateConVar("mr_ultrashortcut", "0", FCVAR_NOTIFY, "Disable check to see if player has passed all checkpoints.", -1, 1)
+local respawntime = CreateConVar("mr_respawntime", "-1", FCVAR_NOTIFY, "Change time after death until melon is respawned.", -1)
 
 -- the only real way this can happen is 'kill' in the console
 function GM:PlayerDeath(killed, attacker, weapon)
@@ -39,7 +38,7 @@ function GM:PlayerInitialSpawn(ply)
 	ply:Freeze(false)
 
 	-- Their model is moot because the player won't actually be drawn.
-	ply:SetModel(PLAYER_MODEL) -- replacing PlayerSpawnChooseModel
+	ply:SetModel(self.PLAYER_MODEL) -- replacing PlayerSpawnChooseModel
 
 	-- Start on the spectator team (joins the game when fire is pressed)
 	ply:SetTeam(TEAM_SPECTATOR)
@@ -71,12 +70,12 @@ function GM:PlayerSpawn(ply)
 
 	-- Spawn a melon
 	local iMelon = ents.Create("prop_physics")
-	iMelon:SetModel(PLAYER_MODEL)
+	iMelon:SetModel(self.PLAYER_MODEL)
 	iMelon:SetPos(vPos + Vector(0, 0, 8))
 
 	iMelon:Spawn()
 
-	if godmode:GetBool() then
+	if self.GODMODE then
 		iMelon:SetKeyValue("physdamagescale", "0")
 	end
 
@@ -188,7 +187,7 @@ function GM:KeyPress(ply, in_key)
 	if bIntermission then return false end
 
 	if in_key == IN_ATTACK and ply:Team() == TEAM_SPECTATOR then
-		ply:SetTeam(TEAM_BLUE)
+		ply:SetTeam(1)
 		ply:Spawn(userid)
 	end
 end
