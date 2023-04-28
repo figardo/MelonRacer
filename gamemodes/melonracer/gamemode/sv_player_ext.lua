@@ -1,7 +1,7 @@
 local meta = FindMetaTable("Player")
 
 function meta:ResetStats()
-	self:SetNWEntity("melon", nil)
+	self:SetMelon(nil)
 
 	self:SetNWVector("CPDir", Vector(0, 0, 0))
 

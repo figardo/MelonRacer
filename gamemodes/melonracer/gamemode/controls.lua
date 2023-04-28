@@ -17,8 +17,8 @@ function GM:DoReverse(ply, melon)
 
 	if vAim == nil then	return end
 
-	vAim.x = vAim.x * (self.REVERSE_SPEED * tickDelta)
-	vAim.y = vAim.y * (self.REVERSE_SPEED * tickDelta)
+	vAim.x = vAim.x * (-self.REVERSE_SPEED * tickDelta)
+	vAim.y = vAim.y * (-self.REVERSE_SPEED * tickDelta)
 	vAim.z = 0
 
 	melon:GetPhysicsObject():ApplyForceCenter(vAim)

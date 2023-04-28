@@ -1,5 +1,5 @@
 local ultrashortcut = CreateConVar("mr_ultrashortcut", "0", FCVAR_NOTIFY, "Disable check to see if player has passed all checkpoints.", -1, 1)
-local respawntime = CreateConVar("mr_respawntime", "-1", FCVAR_NOTIFY, "Change time after death until melon is respawned.", -1)
+local respawntime = CreateConVar("mr_respawntime", "3", FCVAR_NOTIFY, "Change time after death until melon is respawned.")
 
 -- the only real way this can happen is 'kill' in the console
 function GM:PlayerDeath(killed, attacker, weapon)
@@ -62,6 +62,7 @@ function GM:PlayerSelectSpawn(ply)
 	return spawnEnt
 end
 
+local godCol = Color(100, 100, 255)
 function GM:PlayerSpawn(ply)
 	-- Don't do anything if they're spectating
 	if ply:Team() == TEAM_SPECTATOR then return end
@@ -76,6 +77,8 @@ function GM:PlayerSpawn(ply)
 	iMelon:Spawn()
 
 	if self.GODMODE then
+		iMelon:SetRenderMode(1)
+		iMelon:SetColor(godCol)
 		iMelon:SetKeyValue("physdamagescale", "0")
 	end
 
@@ -89,7 +92,7 @@ function GM:PlayerSpawn(ply)
 	end
 
 	-- We need to time this because PlayerSpawn is called while they're still spawning
-	timer.Simple( 0.1, function() self:SetSpectatorMode(ply, iMelon) end)
+	timer.Simple(0.1, function() self:SetSpectatorMode(ply, iMelon) end)
 
 	if !bFirstRoundStarted then
 		timer.Simple(2, function() self:StartRound() end)
@@ -107,7 +110,11 @@ function GM:PropBreak(att, prop)
 	if !IsValid(iPlayer) then return end
 
 	iPlayer:AddDeaths(1)
-	timer.Simple(respawntime:GetFloat(), function()
+
+	local time = respawntime:GetFloat()
+	time = time < 0 and 3 or time
+
+	timer.Simple(time, function()
 		if !IsValid(iPlayer) then
 			ErrorNoHalt("[ERROR] Somehow, melon " .. prop:EntIndex() .. " doesn't have a player entity. Retrying...")
 

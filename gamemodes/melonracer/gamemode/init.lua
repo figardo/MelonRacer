@@ -28,11 +28,25 @@
 	SOFTWARE.
 ]]
 
-local mr_forwardspeed = CreateConVar("mr_forwardspeed", "0", FCVAR_NOTIFY, "The speed of the melon when going forwards. 0 = Depends on Map")
-local mr_reversespeed = CreateConVar("mr_reversespeed", "0", FCVAR_NOTIFY, "The speed of the melon when going backwards. 0 = Depends on Map")
-local mr_model = CreateConVar("mr_model", "", FCVAR_NONE, "The model of the melons. Blank = Depends on Map")
-local mr_laps = CreateConVar("mr_laps", "0", FCVAR_NOTIFY, "The number of laps to complete in a race. 0 = Depends on Map")
-local mr_godmode = CreateConVar("mr_godmode", "0", FCVAR_NOTIFY, "Makes the melon invincible. -1 = Force Off, 0 = Depends on Map, 1 = Force On", -1, 1)
+AddCSLuaFile("cl_init.lua")
+AddCSLuaFile("shared.lua")
+include("shared.lua")
+
+include("gamerules.lua")
+include("events.lua")
+include("controls.lua")
+include("hookexamples.lua")
+include("duplicator.lua")
+include("sv_player_ext.lua")
+
+AddCSLuaFile("gui.lua")
+AddCSLuaFile("hookexamples.lua")
+
+local mr_forwardspeed = CreateConVar("mr_forwardspeed", "170", FCVAR_NOTIFY, "The speed of the melon when going forwards.")
+local mr_reversespeed = CreateConVar("mr_reversespeed", "40", FCVAR_NOTIFY, "The speed of the melon when going backwards.")
+local mr_model = CreateConVar("mr_model", "", FCVAR_NONE, "Override player model.")
+local mr_laps = CreateConVar("mr_laps", "10", FCVAR_NOTIFY, "The number of laps to complete in a race.")
+local mr_godmode = CreateConVar("mr_godmode", "0", FCVAR_NOTIFY, "Makes the melon invincible.")
 -- local force = CreateConVar("mr_force", "0", FCVAR_NOTIFY, "Force gamemode into this version regardless of map. Set to 1 for GM9, 2 for GM10, or 3 for 1.3.")
 
 local defaultForward = 170
@@ -53,11 +67,17 @@ function GM:ResetValues()
 	self.PLAYER_MODEL = util.IsValidModel(mdl) and mdl or (mapSettings and mapSettings.PlayerModel or defaultMdl)
 	util.PrecacheModel(self.PLAYER_MODEL)
 
+	-- Hay guyz I maed a new gamemode its my first gamemode it tuk ages
+
+	-- Ps all I did was uncomment the bowlingball line from melonracer
+
+	-- self.PLAYER_MODEL 	= "models/mixerman3d/bowling/bowling_ball.mdl"
+
 	local numLaps = mr_laps:GetInt()
 	self.NUM_LAPS = numLaps > 0 and numLaps or (mapSettings and mapSettings.NumLaps or defaultLaps)
 
 	local godmode = mr_godmode:GetInt()
-	self.GODMODE = godmode > -1 and (godmode < 1 and (mapSettings and mapSettings.GodMode or false) or true) or false
+	self.GODMODE = godmode > 0 --godmode > -1 and (godmode < 1 and (mapSettings and mapSettings.GodMode or false) or true) or false
 
 	-- FORCE_VERSION = force:GetInt()
 end
@@ -66,26 +86,7 @@ cvars.AddChangeCallback("mr_forwardspeed", function() GAMEMODE:ResetValues() end
 cvars.AddChangeCallback("mr_reversespeed", function() GAMEMODE:ResetValues() end)
 cvars.AddChangeCallback("mr_model", function() GAMEMODE:ResetValues() end)
 cvars.AddChangeCallback("mr_laps", function() GAMEMODE:ResetValues() end)
-
--- Hay guyz I maed a new gamemode its my first gamemode it tuk ages
-
--- Ps all I did was uncomment the bowlingball line from melonracer
-
--- PLAYER_MODEL 	= "models/mixerman3d/bowling/bowling_ball.mdl"
-
-AddCSLuaFile("cl_init.lua")
-AddCSLuaFile("shared.lua")
-include("shared.lua")
-
-include("gamerules.lua")
-include("events.lua")
-include("controls.lua")
-include("hookexamples.lua")
-include("duplicator.lua")
-include("sv_player_ext.lua")
-
-AddCSLuaFile("gui.lua")
-AddCSLuaFile("hookexamples.lua")
+cvars.AddChangeCallback("mr_godmode", function() GAMEMODE:ResetValues() end)
 
 util.AddNetworkString("MelonRacer_PlayerLap")
 util.AddNetworkString("MelonRacer_Lap")
@@ -111,13 +112,6 @@ function GM:Initialize()
 	bFirstRoundStarted	=	false -- We start a round when the first player spawns
 	bIntermission		=	false
 	bRoundStarted = false
-
-	local usetbl = hook.GetTable()["PlayerUse"]
-	if usetbl and #usetbl > 0 then
-		for name, _ in pairs(usetbl) do -- to be ABSOLUTELY sure that no hook is enabling the use key
-			hook.Remove("PlayerUse", name)
-		end
-	end
 
 	hook.Remove("Think", "qtg_plyhighspeeddmg") -- remove incompatible addon
 end
@@ -279,6 +273,13 @@ end
 
 function GM:InitPostEntity()
 	self:ResetValues()
+
+	local usetbl = hook.GetTable()["PlayerUse"]
+	if usetbl and #usetbl > 0 then
+		for name, _ in pairs(usetbl) do -- to be ABSOLUTELY sure that no hook is enabling the use key
+			hook.Remove("PlayerUse", name)
+		end
+	end
 
 	MR_Spawns = {}
 
