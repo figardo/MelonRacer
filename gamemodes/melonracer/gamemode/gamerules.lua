@@ -110,7 +110,7 @@ function GM:StartRound()
 
 	timer.Simple(4, function() self:RaceStart() end)
 end
-concommand.Add("mr_restartround", StartRound)
+concommand.Add("mr_restartround", function() GAMEMODE:StartRound() end)
 
 function GM:RaceStart()
 	for _, ply in ipairs(player.GetAll()) do
