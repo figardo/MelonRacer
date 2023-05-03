@@ -175,6 +175,8 @@ net.Receive("MelonRacer_PlayerLap", function() GAMEMODE:DoLapZoom() end)
 function GM:DoOtherLap()
 	local ply = MR_ReadPlayer()
 
+	if ply == 0 then return end
+
 	if !ply.Laps then ply.Laps = 0 end
 	ply.Laps = ply.Laps + 1
 
