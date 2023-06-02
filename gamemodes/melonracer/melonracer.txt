@@ -44,5 +44,41 @@
 			"type"		"Numeric"
 			"default"	"6"
 		}
+
+		5
+		{
+			"name"		"mr_godmode"
+			"text"		"God Mode"
+			"help"		"Prevents melons from being destroyed"
+			"type"		"CheckBox"
+			"default"	"0"
+		}
+
+		6
+		{
+			"name"		"mr_ultrashortcut"
+			"text"		"Allow Shortcuts"
+			"help"		"If enabled, the game will not check if you have hit the last checkpoint before counting a lap."
+			"type"		"CheckBox"
+			"default"	"0"
+		}
+
+		7
+		{
+			"name"		"mr_checkpointrespawn"
+			"text"		"Respawn at Last Checkpoint"
+			"help"		"If enabled, players will respawn at their last hit checkpoint instead of the very start."
+			"type"		"CheckBox"
+			"default"	"0"
+		}
+
+		8
+		{
+			"name"		"mr_override_mapsettings"
+			"text"		"Override Map Settings"
+			"help"		"ONLY ENABLE IF YOU KNOW WHAT YOU'RE DOING!! If enabled, maps with custom settings will be ignored in favour of the settings above."
+			"type"		"CheckBox"
+			"default"	"0"
+		}
 	}
 }

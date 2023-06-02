@@ -39,3 +39,17 @@ function MR_ReadPlayer()
 
 	return ent
 end
+
+function DevPrint(...) -- ttt my beloved
+	if !GetConVar("developer"):GetBool() then return end
+
+	Msg("[MelonRacer]")
+	-- table.concat does not tostring, derp
+
+	local params = {...}
+	for i = 1,#params do
+		Msg(" " .. tostring(params[i]))
+	end
+
+	Msg("\n")
+end

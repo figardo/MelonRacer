@@ -1,6 +1,3 @@
-local ultrashortcut = CreateConVar("mr_ultrashortcut", "0", FCVAR_NOTIFY, "Disable check to see if player has passed all checkpoints.", -1, 1)
-local respawntime = CreateConVar("mr_respawntime", "3", FCVAR_NOTIFY, "Change time after death until melon is respawned.")
-
 -- the only real way this can happen is 'kill' in the console
 function GM:PlayerDeath(killed, attacker, weapon)
 	-- If the player owns a melon then explode the melon.
@@ -27,7 +24,7 @@ function GM:SetSpectatorMode(ply, iMelon)
 end
 
 function GM:PlayerInitialSpawn(ply)
-	if MR_HighestID <= 0 and ply:IsAdmin() then
+	if self.HighestID <= 0 and ply:IsAdmin() then
 		ply:ChatPrint("Map doesn't support MelonRacer. Please choose a track using the command mr_choosetrack.")
 	end
 
@@ -72,6 +69,27 @@ function GM:PlayerSpawn(ply)
 	-- Spawn a melon
 	local iMelon = ents.Create("prop_physics")
 	iMelon:SetModel(self.PLAYER_MODEL)
+
+	local checkpoint = ply.RespawnCheckpoint
+	if self.CHECKPOINT_RESPAWN and checkpoint > 0 then
+		DevPrint("Respawning at checkpoint " .. checkpoint)
+
+		vPos = ply.CheckpointPos and ply.CheckpointPos[checkpoint] or vPos
+
+		if ply.CheckpointAng then
+			ply:SetEyeAngles(ply.CheckpointAng[checkpoint])
+		end
+	else
+		ply.Checkpoint = 0
+		ply.LapTime = 0
+
+		ply.RespawnCheckpoint = 0
+
+		if bRoundStarted then
+			ply.LapStart = CurTime()
+		end
+	end
+
 	iMelon:SetPos(vPos + Vector(0, 0, 8))
 
 	iMelon:Spawn()
@@ -83,13 +101,6 @@ function GM:PlayerSpawn(ply)
 	end
 
 	ply:SetMelon(iMelon)
-	ply.Checkpoint = 0
-	ply.LapTime = 0
-	ply:ConCommand("cl_mr_respawn")
-
-	if bRoundStarted then
-		ply.LapStart = CurTime()
-	end
 
 	-- We need to time this because PlayerSpawn is called while they're still spawning
 	timer.Simple(0.1, function() self:SetSpectatorMode(ply, iMelon) end)
@@ -111,8 +122,12 @@ function GM:PropBreak(att, prop)
 
 	iPlayer:AddDeaths(1)
 
-	local time = respawntime:GetFloat()
-	time = time < 0 and 3 or time
+	local time = self.RESPAWN_TIME
+
+	net.Start("MelonRacer_PlayerRespawn")
+		net.WriteUInt(time, 5)
+		net.WriteBool(self.CHECKPOINT_RESPAWN)
+	net.Send(iPlayer)
 
 	timer.Simple(time, function()
 		if !IsValid(iPlayer) then
@@ -152,41 +167,65 @@ end
 
 -- This is built for an unlimited amount of checkpoints - to make mapping a bit easier.
 -- A player must not be allowed to SKIP PAST checkpoints.
-function HitCheckpoint(NewCP)
+function HitCheckpoint(newCheck)
 	local a = ACTIVATOR
 	local iPlayer = MelonToPlayer(a)
 	if !IsValid(iPlayer) or !iPlayer:IsPlayer() then return end
 
-	local LastCP = iPlayer.Checkpoint
+	local lastCheck = iPlayer.Checkpoint
+	local highestID = GAMEMODE.HighestID
 
-	if GetConVar("developer"):GetInt() > 0 then
-		print("Player " .. iPlayer:Nick() .. " Hit checkpoint " .. NewCP)
-	end
+	DevPrint("Player " .. iPlayer:Nick() .. " hit checkpoint " .. newCheck .. " out of " .. highestID)
 
-	hook.Run("MR_HitCheckpoint", iPlayer, NewCP)
+	hook.Run("MR_HitCheckpoint", iPlayer, newCheck)
+
+	if lastCheck == newCheck then return end
 
 	-- They're going backwards!
-	if LastCP == NewCP + 1 then
-		net.Start("MelonRacer_WrongWay")
-		net.Send(iPlayer)
+	local goingBack = lastCheck == newCheck + 1
+	if goingBack or (lastCheck == 0 and newCheck == highestID) then
+		if !GAMEMODE.CHECKPOINT_RESPAWN or newCheck != iPlayer.RespawnCheckpoint then
+			net.Start("MelonRacer_WrongWay")
+			net.Send(iPlayer)
+		end
 
-		iPlayer.Checkpoint = NewCP
+		if goingBack then
+			iPlayer.Checkpoint = newCheck
+		end
+
 		return
 	end
 
-	-- Going forwards - but no lap.
-	if LastCP == NewCP - 1 then
-		iPlayer:ConCommand("cl_mr_checkpoint " .. NewCP)
+	-- if the checkpoint is 0 then it probably has spawns on it anyway
+	if newCheck != 0 then
+		local pos = a:GetPos()
+		local tr = util.QuickTrace(pos, pos - Vector(0, 0, 4096), {a, iPlayer})
 
-		iPlayer.Checkpoint = NewCP
+		if !iPlayer.CheckpointPos then iPlayer.CheckpointPos = {} end
+		if !iPlayer.CheckpointAng then iPlayer.CheckpointAng = {} end
+
+		-- Set our checkpoint position
+		iPlayer.CheckpointPos[newCheck] = tr.Hit and tr.HitPos or pos
+
+		-- Save our angles
+		iPlayer.CheckpointAng[newCheck] = iPlayer:EyeAngles()
+	end
+
+	-- Going forwards - but no lap.
+	if newCheck == lastCheck + 1 then
+		iPlayer:ConCommand("cl_mr_checkpoint " .. newCheck)
+
+		iPlayer.Checkpoint = newCheck
 		GAMEMODE:UpdatePositions()
 	end
 
 	-- Lap!
-	local us = ultrashortcut:GetBool()
-	if NewCP == 0 and ((us and LastCP > 1) or (!us and LastCP == MR_HighestID)) then
+	local us = GAMEMODE.ALLOW_SHORTCUT
+	if newCheck == 0 and ((us and lastCheck > 1) or (!us and lastCheck == highestID)) then
 		GAMEMODE:CountLap(iPlayer)
 	end
+
+	iPlayer.RespawnCheckpoint = newCheck
 end
 
 function GM:KeyPress(ply, in_key)

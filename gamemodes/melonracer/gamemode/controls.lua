@@ -31,6 +31,8 @@ function GM:StartCommand(ply, ucmd)
 		return
 	end
 
+	ply.GoingToPreviousCheckpoint = false
+
 	if ply:IsConnected() and ply:Team() != TEAM_SPECTATOR and !ply.FinishedRace then
 		local clickcontrols = ply:GetInfoNum("mr_clickcontrols", 0) > 0
 		if ucmd:GetForwardMove() > 0 or (clickcontrols and ucmd:KeyDown(IN_ATTACK)) then
@@ -45,4 +47,18 @@ function GM:StartCommand(ply, ucmd)
 	if !GetConVar("mr_godmode"):GetBool() then
 		ply:SetAbsVelocity(melon:GetPhysicsObject():GetVelocity())
 	end
+end
+
+function GM:PlayerButtonDown(ply, key)
+	if ply:Team() == TEAM_SPECTATOR or IsValid(ply.Melon) or !self.CHECKPOINT_RESPAWN or ply.GoingToPreviousCheckpoint or key != MOUSE_FIRST then return end
+
+	local curCheck = ply.RespawnCheckpoint
+	ply.RespawnCheckpoint = curCheck == 0 and self.HighestID or ply.RespawnCheckpoint - 1
+
+	net.Start("MelonRacer_RespawnAtLast")
+	net.Send(ply)
+
+	DevPrint("Player " .. ply:Nick() .. " will respawn at checkpoint " .. ply.RespawnCheckpoint)
+
+	ply.GoingToPreviousCheckpoint = true
 end

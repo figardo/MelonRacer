@@ -133,6 +133,8 @@ net.Receive("MelonRacer_WrongWay", function() GAMEMODE:WrongWay() end)
 local lap = Material("gmod/melonracer/lap")
 function GM:DoLapZoom()
 	local ply = LocalPlayer()
+	ply.Checkpoint = 0
+
 	local lapcount = ply.Laps or 0
 	ply.Laps = lapcount + 1
 
@@ -159,9 +161,10 @@ function GM:DoLapZoom()
 	local endtime = CurTime() + 1
 
 	hook.Add("HUDPaint", "MR_LAP", function()
-		x = Lerp(endtime - CurTime(), w * 5, 1)
-		y = Lerp(endtime - CurTime(), h * 5, 1)
-		a = Lerp(endtime - CurTime(), 0, 255)
+		local ct = CurTime()
+		x = Lerp(endtime - ct, w * 5, 1)
+		y = Lerp(endtime - ct, h * 5, 1)
+		a = Lerp(endtime - ct, 0, 255)
 
 		surface.SetDrawColor(255, 255, 255, a)
 		surface.SetMaterial(lap)
@@ -229,7 +232,7 @@ function GM:DrawStats()
 	surface.SetFont("DefaultShadow")
 	surface.SetTextColor(255, 255, 0)
 	surface.SetTextPos(x, y)
-	local first = one .. self.Stats.FirstPlace or "n/a"
+	local first = one .. self.Stats.FirstPlace or NO_NAME
 	surface.DrawText(first)
 
 	local _, th = surface.GetTextSize(first)
@@ -237,14 +240,14 @@ function GM:DrawStats()
 
 	surface.SetTextColor(200, 200, 200)
 	surface.SetTextPos(x, y)
-	local second = two .. self.Stats.SecondPlace or "n/a"
+	local second = two .. self.Stats.SecondPlace or NO_NAME
 	surface.DrawText(second)
 
 	_, th = surface.GetTextSize(second)
 	y = y + th
 
 	surface.SetTextPos(x, y)
-	local third = three .. self.Stats.ThirdPlace or "n/a"
+	local third = three .. self.Stats.ThirdPlace or NO_NAME
 	surface.DrawText(third)
 
 	surface.SetTextColor(120, 120, 120)
@@ -273,7 +276,7 @@ function GM:DrawStats()
 	y = y + th
 
 	surface.SetTextPos(x, y)
-	surface.DrawText(self.Stats.BestLapName or "n/a")
+	surface.DrawText(self.Stats.BestLapName or NO_NAME)
 end
 
 function GM:DrawPersonalStats()
@@ -343,6 +346,7 @@ net.Receive("MelonRacer_Winner", DeclareWinner)
 
 local function Checkpoint(ply, cmd, args)
 	local NewCP = tonumber(args[1])
+	ply.Checkpoint = NewCP
 
 	if hook.Run("MR_ShowCheckpoint", NewCP) then return end
 
@@ -369,6 +373,8 @@ local function DrawRoundStart(iNumber)
 	local sw = ScrW()
 	local sh = ScrH()
 
+	if iNumber == 0 then iNumber = "#MelonRacer.Go" end
+
 	local count = vgui.Create("DLabel")
 	count:SetFont("ImpactMassive")
 	count:SetText(iNumber)
@@ -393,6 +399,7 @@ function GM:PlayerResetStats()
 	local ply = LocalPlayer()
 
 	ply.Laps = 0
+	ply.Checkpoint = 0
 	ply.LapTime = 0
 
 	self.Stats.FirstPlace = ply:Nick()
@@ -401,21 +408,75 @@ function GM:PlayerResetStats()
 end
 
 function GM:StartRound()
-	if hook.Run("MR_DrawRoundStart") then return end
-
 	self:PlayerResetStats()
 
-	timer.Simple(1, function() DrawRoundStart(3) end)
-	timer.Simple(2, function() DrawRoundStart(2) end)
-	timer.Simple(3, function() DrawRoundStart(1) end)
-	timer.Simple(4, function() DrawRoundStart("#MelonRacer.Go") end)
+	local countdown = net.ReadUInt(5)
+	if hook.Run("MR_DrawRoundStart", countdown) then return end
+
+	for i = 1, countdown + 1 do
+		local time = countdown - i + 1
+		timer.Simple(i, function() DrawRoundStart(time) end)
+	end
 end
-concommand.Add("cl_mr_startround", function() GAMEMODE:StartRound() end)
+net.Receive("MelonRacer_StartRound", function() GAMEMODE:StartRound() end)
+
+local respawningAtLast = false
+
+local function SetRespawningAtLast()
+	respawningAtLast = true
+end
+net.Receive("MelonRacer_RespawnAtLast", SetRespawningAtLast)
 
 local function OnPlayerRespawn()
-	LocalPlayer().LapTime = 0
+	local respawnTime = net.ReadUInt(5)
+	local ply = LocalPlayer()
+
+	local checkpointRespawning = net.ReadBool()
+
+	if checkpointRespawning then
+		local lastCheckHint = "#MelonRacer.LastCheckpointHint"
+
+		local w = ScrW()
+		local h = ScrH()
+
+		local delta = CurTime()
+
+		respawningAtLast = false
+
+		hook.Add("HUDPaint", "MelonRacer_DeathHUD", function()
+			-- Respawn timer --
+			if respawnTime <= 0 then
+				hook.Remove("HUDPaint", "MelonRacer_DeathHUD")
+				return
+			end
+
+			local Seconds = math.floor(respawnTime * 10) / 10
+
+			if Seconds % 1 == 0 then
+				-- There's no decimal, add it
+				Seconds = Seconds .. ".0"
+			end
+
+			local respawnStr = string.format(language.GetPhrase("MelonRacer.Respawning"), Seconds)
+
+			-- Show respawn text
+			draw.SimpleTextOutlined(respawnStr, "ScoreboardText", w * 0.5, h * 0.5, color_white, 1, 1, 1, Color(0, 0, 0, 255))
+
+			if !respawningAtLast then
+				draw.SimpleTextOutlined(lastCheckHint, "ScoreboardText", w * 0.5, h * 0.5 + 15, color_white, 1, 1, 1, Color(0, 0, 0, 255))
+			end
+
+			local diff = CurTime() - delta
+			delta = CurTime()
+			respawnTime = respawnTime - diff
+		end)
+	end
+
+	if ply.Checkpoint == 0 then
+		ply.LapStart = CurTime() - respawnTime
+	end
 end
-concommand.Add("cl_mr_respawn", OnPlayerRespawn)
+net.Receive("MelonRacer_PlayerRespawn", OnPlayerRespawn)
 
 local function GetLargestHelp()
 	local x1, y = surface.GetTextSize("#MelonRacer.Help1")

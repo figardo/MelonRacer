@@ -23,23 +23,26 @@ local function CreateOtherFonts()
 	surface.CreateFont("ImpactMassive", {
 		font = "Impact",
 		size = ScreenScale(17.5) * scale,
-		weight = 200,
-		antialias = true
+		weight = 200
 	})
 
 	surface.CreateFont("DefaultShadow", {
 		font = "Verdana",
 		size = ScreenScale(6) * scale,
 		weight = 700,
-		antialias = true,
 		shadow = true
 	})
 
 	surface.CreateFont("LegacyDefault", {
 		font = "Verdana",
 		size = ScreenScale(6) * scale,
-		weight = 700,
-		antialias = true
+		weight = 700
+	})
+
+	surface.CreateFont("ScoreboardText", {
+		font = "Default",
+		size = ScreenScale(4) * scale,
+		weight = 800
 	})
 end
 
@@ -69,7 +72,8 @@ local clickforward = CreateClientConVar("mr_clickcontrols", "0", true, true, "Wh
 function GM:HUDPaint()
 	self:UpdatePlayerLabels()
 
-	if LocalPlayer():Team() == TEAM_SPECTATOR then return end
+	local ply = LocalPlayer()
+	if ply:Team() == TEAM_SPECTATOR then return end
 	self:DrawStats()
 	self:DrawPersonalStats()
 end
@@ -168,7 +172,10 @@ function GM:CalcView(ply, pos, ang, fov)
 
 	local melon = ply:GetObserverTarget()
 	if !IsValid(melon) then
-		ply.LapStart = CurTime() -- teehee
+		if ply.Checkpoint == 0 then
+			ply.LapStart = CurTime() -- teehee
+		end
+
 		return view
 	end
 

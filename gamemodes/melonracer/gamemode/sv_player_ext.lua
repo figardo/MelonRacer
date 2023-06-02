@@ -6,6 +6,8 @@ function meta:ResetStats()
 	self:SetNWVector("CPDir", Vector(0, 0, 0))
 
 	self.Checkpoint = 0
+	self.RespawnCheckpoint = 0
+	self.NextCheckpoint = 1
 	self.Laps = 0
 	self.LapTime = 0
 	self.LapStart = 0

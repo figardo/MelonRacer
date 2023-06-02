@@ -78,6 +78,8 @@ elseif CLIENT then -- CLIENT SIDED HOOKS
 		if !checkSplit:GetBool() or newCP <= lastCP then return false end
 
 		local startTime = LocalPlayer().LapStart
+		if !startTime then return end
+
 		local split = CurTime() - startTime
 
 		local str = string.OldMSMS(split)

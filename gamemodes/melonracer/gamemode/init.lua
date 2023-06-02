@@ -44,27 +44,43 @@ AddCSLuaFile("hookexamples.lua")
 
 local mr_forwardspeed = CreateConVar("mr_forwardspeed", "170", FCVAR_NOTIFY, "The speed of the melon when going forwards.")
 local mr_reversespeed = CreateConVar("mr_reversespeed", "40", FCVAR_NOTIFY, "The speed of the melon when going backwards.")
-local mr_model = CreateConVar("mr_model", "", FCVAR_NONE, "Override player model.")
+local mr_model = CreateConVar("mr_model", "", FCVAR_NONE, "Override player model. Leave blank to allow the map to decide.")
 local mr_laps = CreateConVar("mr_laps", "10", FCVAR_NOTIFY, "The number of laps to complete in a race.")
-local mr_godmode = CreateConVar("mr_godmode", "0", FCVAR_NOTIFY, "Makes the melon invincible.")
--- local force = CreateConVar("mr_force", "0", FCVAR_NOTIFY, "Force gamemode into this version regardless of map. Set to 1 for GM9, 2 for GM10, or 3 for 1.3.")
+local mr_godmode = CreateConVar("mr_godmode", "0", FCVAR_NOTIFY, "Makes the melon invincible.", 0, 1)
+local mr_ultrashortcut = CreateConVar("mr_ultrashortcut", "0", FCVAR_NOTIFY, "Disable check to see if player has passed all checkpoints.", 0, 1)
+local mr_checkrespawn = CreateConVar("mr_checkpointrespawn", "0", FCVAR_NOTIFY, "Respawn players at their last checkpoint instead of spawn.", 0, 1)
+local mr_override_mapsettings = CreateConVar("mr_override_mapsettings", "0", FCVAR_ARCHIVE, "If enabled, the gamemode will ignore the map settings and use server settings instead.", 0, 1)
+local mr_respawntime = CreateConVar("mr_respawntime", "3", FCVAR_NOTIFY, "Change time after death until melon is respawned.", 0, 30)
+local mr_countdown = CreateConVar("mr_countdown", "3", FCVAR_NOTIFY, "Change countdown timer before lap starts.", 0, 30)
+local mr_postround = CreateConVar("mr_postround", "10", FCVAR_NOTIFY, "Change time after lap ends until the round is restarted.", 0, 30)
+-- local force_version = CreateConVar("mr_force_version", "0", FCVAR_NOTIFY, "Force gamemode into this version regardless of map. Set to 1 for GM9, 2 for GM10, or 3 for 1.3.")
 
-local defaultForward = 170
-local defaultBack = 40
-local defaultLaps = 10
 local defaultMdl = Model("models/props_junk/watermelon01.mdl")
+
+local function ProcessConVarNum(mapSettings, setting, convar)
+	if !mr_override_mapsettings:GetBool() and mapSettings then return mapSettings[setting] end
+
+	return convar
+end
+
+local function ProcessConVarBool(mapSettings, setting, convar)
+	if !mr_override_mapsettings:GetBool() and mapSettings then return mapSettings[setting] == 1 end
+
+	return convar
+end
+
 function GM:ResetValues()
 	local mapSettings = ents.FindByClass("mr_map_settings")
-	mapSettings = #mapSettings > 1 and mapSettings[1] or nil
+	mapSettings = #mapSettings > 0 and mapSettings[1] or nil
 
 	local forwardSpeed = mr_forwardspeed:GetInt()
-	self.FORWARD_SPEED = forwardSpeed > 0 and forwardSpeed or (mapSettings and mapSettings.FSpeed or defaultForward)
+	self.FORWARD_SPEED = ProcessConVarNum(mapSettings, "FSpeed", forwardSpeed)
 
 	local reverseSpeed = mr_reversespeed:GetInt()
-	self.REVERSE_SPEED = reverseSpeed > 0 and reverseSpeed or (mapSettings and mapSettings.RSpeed or defaultBack)
+	self.REVERSE_SPEED = ProcessConVarNum(mapSettings, "RSpeed", reverseSpeed)
 
 	local mdl = mr_model:GetString()
-	self.PLAYER_MODEL = util.IsValidModel(mdl) and mdl or (mapSettings and mapSettings.PlayerModel or defaultMdl)
+	self.PLAYER_MODEL = util.IsValidModel(mdl) and mdl or ((mapSettings and util.IsValidModel(mapSettings.PlayerModel)) and mapSettings.PlayerModel or defaultMdl)
 	util.PrecacheModel(self.PLAYER_MODEL)
 
 	-- Hay guyz I maed a new gamemode its my first gamemode it tuk ages
@@ -74,10 +90,25 @@ function GM:ResetValues()
 	-- self.PLAYER_MODEL 	= "models/mixerman3d/bowling/bowling_ball.mdl"
 
 	local numLaps = mr_laps:GetInt()
-	self.NUM_LAPS = numLaps > 0 and numLaps or (mapSettings and mapSettings.NumLaps or defaultLaps)
+	self.NUM_LAPS = ProcessConVarNum(mapSettings, "LapCount", numLaps)
 
-	local godmode = mr_godmode:GetInt()
-	self.GODMODE = godmode > 0 --godmode > -1 and (godmode < 1 and (mapSettings and mapSettings.GodMode or false) or true) or false
+	local godmode = mr_godmode:GetBool()
+	self.GODMODE = ProcessConVarBool(mapSettings, "GodMode", godmode)
+
+	local us = mr_ultrashortcut:GetBool()
+	self.ALLOW_SHORTCUT = ProcessConVarBool(mapSettings, "Shortcuts", us)
+
+	local cr = mr_checkrespawn:GetBool()
+	self.CHECKPOINT_RESPAWN = ProcessConVarBool(mapSettings, "CheckRespawn", cr)
+
+	local rt = mr_respawntime:GetFloat()
+	self.RESPAWN_TIME = ProcessConVarNum(mapSettings, "RespawnTime", rt)
+
+	local cd = mr_countdown:GetInt()
+	self.COUNTDOWN = ProcessConVarNum(mapSettings, "Countdown", cd)
+
+	local pr = mr_postround:GetInt()
+	self.POST_ROUND = ProcessConVarNum(mapSettings, "PostRound", pr)
 
 	-- FORCE_VERSION = force:GetInt()
 end
@@ -86,7 +117,17 @@ cvars.AddChangeCallback("mr_forwardspeed", function() GAMEMODE:ResetValues() end
 cvars.AddChangeCallback("mr_reversespeed", function() GAMEMODE:ResetValues() end)
 cvars.AddChangeCallback("mr_model", function() GAMEMODE:ResetValues() end)
 cvars.AddChangeCallback("mr_laps", function() GAMEMODE:ResetValues() end)
-cvars.AddChangeCallback("mr_godmode", function() GAMEMODE:ResetValues() end)
+cvars.AddChangeCallback("mr_checkpointrespawn", function() GAMEMODE:ResetValues() end)
+cvars.AddChangeCallback("mr_godmode", function()
+	GAMEMODE:ResetValues()
+
+	local plys = player.GetAll()
+	for i = 1, #plys do
+		local ply = plys[i]
+
+		ply:Kill()
+	end
+end)
 
 util.AddNetworkString("MelonRacer_PlayerLap")
 util.AddNetworkString("MelonRacer_Lap")
@@ -96,6 +137,9 @@ util.AddNetworkString("MelonRacer_WrongWay")
 util.AddNetworkString("MelonRacer_AskForTracks")
 util.AddNetworkString("MelonRacer_QueryTrack")
 util.AddNetworkString("MelonRacer_SelectTrack")
+util.AddNetworkString("MelonRacer_StartRound")
+util.AddNetworkString("MelonRacer_PlayerRespawn")
+util.AddNetworkString("MelonRacer_RespawnAtLast")
 
 function GM:Initialize()
 	team.SetUp(1, "BLUE", Color(0, 0, 255))
@@ -134,7 +178,7 @@ local function HandleTrackData(_, ply)
 	end
 
 	MR_Spawns = {}
-	MR_HighestID = 0
+	GAMEMODE.HighestID = 0
 
 	local saveData = entList[#entList]
 	if string.StartWith(saveData, "{") then
@@ -160,8 +204,8 @@ local function HandleTrackData(_, ply)
 			check:SetID(cid)
 			check:Spawn()
 
-			if cid > MR_HighestID then
-				MR_HighestID = cid
+			if cid > GAMEMODE.HighestID then
+				GAMEMODE.HighestID = cid
 			end
 		elseif params[1] == "spawn" then
 			local spawn = ents.Create("gmod_player_start")
@@ -222,20 +266,20 @@ local function VerifyTrigger(v)
 
 	local id = tonumber(tbl[3])
 
-	if id > MR_HighestID then
-		MR_HighestID = id
+	if id > GAMEMODE.HighestID then
+		GAMEMODE.HighestID = id
 	end
 end
 
 function GM:EntityKeyValue(ent, k, v)
-	if !MR_HighestID then MR_HighestID = 0 end
+	if !self.HighestID then self.HighestID = 0 end
 	local class = ent:GetClass()
 
 	if class == "trigger_checkpoint" and k == "checkpoint" then
 		local id = tonumber(v) - 1
 
-		if id > MR_HighestID then
-			MR_HighestID = id
+		if id > self.HighestID then
+			self.HighestID = id
 		end
 
 		return
@@ -244,8 +288,8 @@ function GM:EntityKeyValue(ent, k, v)
 	if class == "checkpoint" and k == "number" then -- fucking stupid classname
 		local id = tonumber(v) - 1
 
-		if id > MR_HighestID then
-			MR_HighestID = id
+		if id > self.HighestID then
+			self.HighestID = id
 		end
 
 		return

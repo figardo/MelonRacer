@@ -25,3 +25,42 @@
 	input RunScriptInteger(integer) : "Runs the script with an integer parameter [ function(integer) ] (MelonRacer: This should be the checkpoint ID, 0 for the starting line and increase by 1 for each checkpoint)"
 	
 ]
+
+@PointClass base(Targetname) = mr_map_settings : 
+	"Changes the gamemode settings for this map. Will take priority by default, but the server can overwrite any of these settings if it wants to."
+[
+	
+	ForceVersion(Choices) : "Force Gamemode Version" : 0 : "Use specific version of the gamemode, despite the checkpoint entity used." =
+	[
+		0 : "Default"
+		1 : "Garry's Mod 9"
+		2 : "Garry's Mod 11"
+		3 : "MelonRacer 1.3"
+	]
+
+	LapCount(integer) : "Lap Count" : 10 : "Override the number of laps required to win a round."
+	PlayerModel(string) : "Melon Model" : "" : "Override every player's model."
+
+	Shortcuts(Choices) : "Allow Shortcuts" : 0 : "Set whether the gamemode should check if every checkpoint was hit before counting a lap." = [
+		0 : "Disabled"
+		1 : "Enabled"
+	]
+
+	ForwardSpeed(integer) : "Forward Speed" : 170 : "Override the forward speed of the melons."
+	ReverseSpeed(integer) : "Reverse Speed" : 40 : "Override the reverse speed of the melons."
+
+	CheckpointRespawning(Choices) : "Checkpoint Respawning" : 0 : "Should players respawn at their last checkpoint instead of the very start?" = [
+		0 : "Disabled"
+		1 : "Enabled"
+	]
+
+	GodMode(Choices) : "God Mode" : 0 : "Prevent melons from exploding when hitting objects too hard. Melons can still be exploded through trigger_hurt." = [
+		0 : "Disabled"
+		1 : "Enabled"
+	]
+
+	RespawnTime(integer) : "Respawn Time" : 3 : "Set how long it takes for players to respawn from death."
+	Countdown(integer) : "Countdown Timer" : 3 : "Set how long it takes for a new round to start after restarting."
+	PostRound(integer) : "Post Round Time" : 10 : "Set how long it takes for a new round to start after finishing a round."
+	AuthorTime(string) : "Author Time" : "" : "Enter your personal best here in the format 0:00:000. A chat message will appear when someone beats this time."
+]

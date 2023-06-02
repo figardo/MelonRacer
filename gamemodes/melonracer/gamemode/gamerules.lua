@@ -56,7 +56,7 @@ function GM:CheckRoundFinished(ply)
 	if bRestartingRound then return end
 
 	if !hook.Run("MR_EndRound", ply) then
-		timer.Simple(10, function() self:StartRound() end)
+		timer.Simple(self.POST_ROUND, function() self:StartRound() end)
 	end
 
 	bRestartingRound = true
@@ -77,7 +77,9 @@ end
 
 -- Start a whole new round
 function GM:StartRound()
-	for _, ply in ipairs(player.GetAll()) do
+	local plys = player.GetAll()
+	for i = 1, #plys do
+		local ply = plys[i]
 		if !IsValid(ply) or ply:Team() == TEAM_SPECTATOR then continue end
 
 		-- smash the player's melon if he has one
@@ -96,19 +98,17 @@ function GM:StartRound()
 		ply.Melon:GetPhysicsObject():EnableMotion(false)
 	end
 
+	net.Start("MelonRacer_StartRound")
+		net.WriteUInt(self.COUNTDOWN, 5)
+	net.Broadcast()
+
 	bRestartingRound	=	false
 	bIntermission		=	true
 	bRoundStarted		=	true
 
-	local plys = player.GetAll()
-	for i = 1, #plys do
-		local ply = plys[i]
-		ply:ConCommand("cl_mr_startround")
-	end
-
 	hook.Run("MR_PrepRound")
 
-	timer.Simple(4, function() self:RaceStart() end)
+	timer.Simple(self.COUNTDOWN + 1, function() self:RaceStart() end)
 end
 concommand.Add("mr_restartround", function() GAMEMODE:StartRound() end)
 
