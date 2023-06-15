@@ -4,7 +4,7 @@ include("hookexamples.lua")
 
 local textScale = CreateClientConVar("mr_hudscale", "1", true, false, "Text scale multiplier for the HUD.")
 local ntScale = CreateClientConVar("mr_nametagscale", "1", true, false, "Text scale multiplier for the name tags.")
-local enableBeta = CreateClientConVar("mr_betahud", "0", true, true, "Enable GMod 8.4 mode. Disables most of the HUD, replaces the lap animation with text, and shows Checkpoint 0 when the lap point has been hit.")
+local enableBeta = CreateClientConVar("mr_betahud", "0", true, true, "Enable GMod 8.4 mode. Disables the stats HUD, replaces the lap animation with text, and shows Checkpoint 0 when the lap point has been hit.")
 
 local function CreateNameFont()
 	local scale = ntScale:GetFloat()
