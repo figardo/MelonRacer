@@ -4,6 +4,7 @@ include("hookexamples.lua")
 
 local textScale = CreateClientConVar("mr_hudscale", "1", true, false, "Text scale multiplier for the HUD.")
 local ntScale = CreateClientConVar("mr_nametagscale", "1", true, false, "Text scale multiplier for the name tags.")
+local enableBeta = CreateClientConVar("mr_betahud", "0", true, true, "Enable GMod 8.4 mode. Disables most of the HUD, replaces the lap animation with text, and shows Checkpoint 0 when the lap point has been hit.")
 
 local function CreateNameFont()
 	local scale = ntScale:GetFloat()
@@ -73,7 +74,7 @@ function GM:HUDPaint()
 	self:UpdatePlayerLabels()
 
 	local ply = LocalPlayer()
-	if ply:Team() == TEAM_SPECTATOR then return end
+	if ply:Team() == TEAM_SPECTATOR or enableBeta:GetBool() then return end
 	self:DrawStats()
 	self:DrawPersonalStats()
 end

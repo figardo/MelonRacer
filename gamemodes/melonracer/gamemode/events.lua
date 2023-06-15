@@ -222,6 +222,10 @@ function HitCheckpoint(newCheck)
 	-- Lap!
 	local us = GAMEMODE.ALLOW_SHORTCUT
 	if newCheck == 0 and ((us and lastCheck > 1) or (!us and lastCheck == highestID)) then
+		if iPlayer:GetInfoNum("mr_betahud", 0) == 1 then
+			iPlayer:ConCommand("cl_mr_checkpoint 0")
+		end
+
 		GAMEMODE:CountLap(iPlayer)
 	end
 

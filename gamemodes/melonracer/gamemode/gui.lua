@@ -109,24 +109,27 @@ function GM:DrawIntro()
 end
 -- concommand.Add("mr_intro", DrawIntro)
 
-function GM:WrongWay()
-	if hook.Run("MR_WrongWay") then return end
-
+local function CentreMessage(text, col, font)
 	local w = ScrW()
 	local h = ScrH()
 
-	local wwtext = "#MelonRacer.WrongWay"
-	surface.SetFont("LegacyDefault")
-	local tw, th = surface.GetTextSize(wwtext)
+	surface.SetFont(font)
+	local tw, th = surface.GetTextSize(text)
 
-	local wway = vgui.Create("DLabel")
-	wway:SetSize(tw, th)
-	wway:SetPos((w / 2) - (tw / 2), h * 0.3)
-	wway:SetFont("LegacyDefault")
-	wway:SetTextColor(Color(255, 0, 0))
-	wway:SetText(wwtext)
+	local msg = vgui.Create("DLabel")
+	msg:SetSize(tw, th)
+	msg:SetPos((w / 2) - (tw / 2), h * 0.3)
+	msg:SetFont(font)
+	msg:SetTextColor(col)
+	msg:SetText(text)
 
-	wway:AlphaTo(0, 1, 2, function(_, pnl) pnl:Remove() end)
+	msg:AlphaTo(0, 1, 2, function(_, pnl) pnl:Remove() end)
+end
+
+function GM:WrongWay()
+	if hook.Run("MR_WrongWay") then return end
+
+	CentreMessage("#MelonRacer.WrongWay", Color(255, 0, 0), "LegacyDefault")
 end
 net.Receive("MelonRacer_WrongWay", function() GAMEMODE:WrongWay() end)
 
@@ -153,6 +156,11 @@ function GM:DoLapZoom()
 	end
 
 	if hook.Run("MR_LapAnimation") then return end
+
+	if GetConVar("mr_betahud"):GetBool() then
+		CentreMessage("LAP!", color_white, "DefaultShadow")
+		return
+	end
 
 	local w = ScrW()
 	local h = ScrH()
