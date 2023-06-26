@@ -160,7 +160,7 @@ function GM:Initialize()
 	hook.Remove("Think", "qtg_plyhighspeeddmg") -- remove incompatible addon
 end
 
-local function HandleTrackData(_, ply)
+function GM:HandleTrackData(_, ply)
 	if !ply:IsAdmin() then return end
 
 	local prefix = "melonracer/" .. game.GetMap() .. "/"
@@ -178,7 +178,7 @@ local function HandleTrackData(_, ply)
 	end
 
 	MR_Spawns = {}
-	GAMEMODE.HighestID = 0
+	self.HighestID = 0
 
 	local saveData = entList[#entList]
 	if string.StartWith(saveData, "{") then
@@ -204,8 +204,8 @@ local function HandleTrackData(_, ply)
 			check:SetID(cid)
 			check:Spawn()
 
-			if cid > GAMEMODE.HighestID then
-				GAMEMODE.HighestID = cid
+			if cid > self.HighestID then
+				self.HighestID = cid
 			end
 		elseif params[1] == "spawn" then
 			local spawn = ents.Create("gmod_player_start")
@@ -223,10 +223,10 @@ local function HandleTrackData(_, ply)
 	end
 
 	if bFirstRoundStarted then
-		GAMEMODE:StartRound()
+		self:StartRound()
 	end
 end
-net.Receive("MelonRacer_SelectTrack", HandleTrackData)
+net.Receive("MelonRacer_SelectTrack", function() GAMEMODE:HandleTrackData() end)
 
 local function AskForTracks(_, ply)
 	local prefix = "melonracer/" .. game.GetMap() .. "/"
@@ -248,7 +248,7 @@ net.Receive("MelonRacer_AskForTracks", AskForTracks)
 
 local checkpointent
 local triggerQueue = {}
-local function VerifyTrigger(v)
+function GM:VerifyTrigger(v)
 	local tbl = v:Split(",")
 
 	local name = tbl[1]
@@ -266,8 +266,8 @@ local function VerifyTrigger(v)
 
 	local id = tonumber(tbl[3])
 
-	if id > GAMEMODE.HighestID then
-		GAMEMODE.HighestID = id
+	if id > self.HighestID then
+		self.HighestID = id
 	end
 end
 
@@ -299,7 +299,7 @@ function GM:EntityKeyValue(ent, k, v)
 		checkpointent = ent
 
 		for _, values in ipairs(triggerQueue) do
-			VerifyTrigger(values)
+			self:VerifyTrigger(values)
 		end
 
 		return
@@ -311,7 +311,7 @@ function GM:EntityKeyValue(ent, k, v)
 			return
 		end
 
-		VerifyTrigger(v)
+		self:VerifyTrigger(v)
 	end
 end
 
