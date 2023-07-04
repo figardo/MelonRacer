@@ -12,6 +12,7 @@ if SERVER then -- SERVER SIDED HOOKS
 			timer.Simple(5, function()
 				MapVote.Start(nil, nil, nil, {"gm_melon", "mr_", "melon_"}) -- look for maps with gm_melon, mr_, or melon_ prefixes
 			end)
+
 			return true -- prevents round from restarting
 		end
 
