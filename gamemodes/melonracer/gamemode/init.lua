@@ -160,7 +160,7 @@ function GM:Initialize()
 	hook.Remove("Think", "qtg_plyhighspeeddmg") -- remove incompatible addon
 end
 
-function GM:HandleTrackData(_, ply)
+function GM:HandleTrackData(ply)
 	if !ply:IsAdmin() then return end
 
 	local prefix = "melonracer/" .. game.GetMap() .. "/"
@@ -219,6 +219,10 @@ function GM:HandleTrackData(_, ply)
 			spawn:Spawn()
 
 			table.insert(MR_Spawns, spawn)
+		elseif params[1] == "prop" then
+			ply:ChatPrint("This is an old format track. Please load it in the track creator and re-export it to fix it.")
+			ply:ChatPrint("The track creator can be downloaded here: https://steamcommunity.com/sharedfiles/filedetails/?id=2925384863")
+			break
 		end
 	end
 
@@ -226,7 +230,7 @@ function GM:HandleTrackData(_, ply)
 		self:StartRound()
 	end
 end
-net.Receive("MelonRacer_SelectTrack", function() GAMEMODE:HandleTrackData() end)
+net.Receive("MelonRacer_SelectTrack", function(_, ply) GAMEMODE:HandleTrackData(ply) end)
 
 local function AskForTracks(_, ply)
 	local prefix = "melonracer/" .. game.GetMap() .. "/"
