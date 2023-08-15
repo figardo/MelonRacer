@@ -231,6 +231,8 @@ local msms = string.OldMSMS
 function GM:DrawStats()
 	if hook.Run("MR_DrawStats") then return end
 
+	if !self.Stats then self:ResetStats() end
+
 	local w = ScrW()
 	local x = w * 0.02
 

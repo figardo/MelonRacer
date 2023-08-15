@@ -147,6 +147,16 @@ function GM:InitPostEntity()
 
 	self:DrawIntro()
 
+	self:ResetStats()
+
+	local lang = GetConVar("gmod_language"):GetString():lower()
+	if unsupported[lang] then
+		ply:ChatPrint("Selected language is unsupported. Contribute here: https://crowdin.com/project/melonracer")
+		ply:ChatPrint(unsupported[lang] .. " https://crowdin.com/project/melonracer")
+	end
+end
+
+function GM:ResetStats()
 	self.Stats = {}
 
 	self.Stats.BestLap		= 0
@@ -154,12 +164,6 @@ function GM:InitPostEntity()
 	self.Stats.FirstPlace = NO_NAME
 	self.Stats.SecondPlace = NO_NAME
 	self.Stats.ThirdPlace = NO_NAME
-
-	local lang = GetConVar("gmod_language"):GetString():lower()
-	if unsupported[lang] then
-		ply:ChatPrint("Selected language is unsupported. Contribute here: https://crowdin.com/project/melonracer")
-		ply:ChatPrint(unsupported[lang] .. " https://crowdin.com/project/melonracer")
-	end
 end
 
 local dist = 10
