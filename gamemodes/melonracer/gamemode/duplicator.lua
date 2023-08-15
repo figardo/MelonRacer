@@ -1,6 +1,6 @@
 -- one big copy-paste job from sandbox
 
-function MR_RegisterDupeEnts()
+function GM:RegisterDupeEnts()
 	local function FixInvalidPhysicsObject( Prop )
 
 		local PhysObj = Prop:GetPhysicsObject()
@@ -12,8 +12,8 @@ function MR_RegisterDupeEnts()
 		local PhysSize = ( min - max ):Length()
 		if ( PhysSize > 5 ) then return end
 
-		local min = Prop:OBBMins()
-		local max = Prop:OBBMaxs()
+		min = Prop:OBBMins()
+		max = Prop:OBBMaxs()
 		if ( !min or !max ) then return end
 
 		local ModelSize = ( min - max ):Length()
@@ -26,7 +26,7 @@ function MR_RegisterDupeEnts()
 		Prop:PhysicsInitBox( min, max )
 		Prop:SetCollisionGroup( COLLISION_GROUP_DEBRIS )
 
-		local PhysObj = Prop:GetPhysicsObject()
+		PhysObj = Prop:GetPhysicsObject()
 		if ( !IsValid( PhysObj ) ) then return end
 
 		PhysObj:SetMass( 100 )
