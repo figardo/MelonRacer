@@ -60,17 +60,13 @@ function meta:DoneLap()
 		net.WriteBool(sr)
 	net.Send(self)
 
-	local rf = RecipientFilter()
-	rf:AddAllPlayers()
-	rf:RemovePlayer(self)
-
 	net.Start("MelonRacer_Lap")
 		MR_WritePlayer(self)
 		net.WriteBool(sr)
 		if sr then
 			net.WriteFloat(GAMEMODE.Stats.BestLap)
 		end
-	net.Send(rf)
+	net.SendOmit(self)
 end
 
 function meta:SetMelon(ent)
