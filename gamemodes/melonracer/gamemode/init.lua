@@ -177,12 +177,12 @@ function GM:HandleTrackData(ply)
 		ent:Remove()
 	end
 
-	MR_Spawns = {}
+	self.Spawns = {}
 	self.HighestID = 0
 
 	local saveData = entList[#entList]
 	if string.StartWith(saveData, "{") then
-		MR_RegisterDupeEnts()
+		self:RegisterDupeEnts()
 
 		gmsave.LoadMap(saveData)
 	end
@@ -190,8 +190,8 @@ function GM:HandleTrackData(ply)
 	for _, data in ipairs(entList) do
 		local params = data:Split(" ")
 
-		local cid = tonumber(params[1])
-		if cid then
+		local checkpointID = tonumber(params[1])
+		if checkpointID then
 			local check = ents.Create("mr_rearmtrigger")
 
 			local posx, posy, posz = tonumber(params[2]), tonumber(params[3]), tonumber(params[4])
@@ -201,11 +201,11 @@ function GM:HandleTrackData(ply)
 			check:SetPos(pos)
 			check:SetPos1(pos)
 			check:SetPos2(Vector(mx, my, mz))
-			check:SetID(cid)
+			check:SetID(checkpointID)
 			check:Spawn()
 
-			if cid > self.HighestID then
-				self.HighestID = cid
+			if checkpointID > self.HighestID then
+				self.HighestID = checkpointID
 			end
 		elseif params[1] == "spawn" then
 			local spawn = ents.Create("gmod_player_start")
@@ -218,7 +218,7 @@ function GM:HandleTrackData(ply)
 
 			spawn:Spawn()
 
-			table.insert(MR_Spawns, spawn)
+			table.insert(self.Spawns, spawn)
 		elseif params[1] == "prop" then
 			ply:ChatPrint("This is an old format track. Please load it in the track creator and re-export it to fix it.")
 			ply:ChatPrint("The track creator can be downloaded here: https://steamcommunity.com/sharedfiles/filedetails/?id=2925384863")
@@ -329,9 +329,9 @@ function GM:InitPostEntity()
 		end
 	end
 
-	MR_Spawns = {}
+	self.Spawns = {}
 
 	for _, spawn in ipairs(ents.FindByClass("*_player_*")) do
-		table.insert(MR_Spawns, spawn)
+		table.insert(self.Spawns, spawn)
 	end
 end

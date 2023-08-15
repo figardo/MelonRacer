@@ -47,13 +47,13 @@ end
 
 local i = 1
 function GM:PlayerSelectSpawn(ply)
-	if !MR_Spawns or table.IsEmpty(MR_Spawns) then
+	if !self.Spawns or table.IsEmpty(self.Spawns) then
 		self:InitPostEntity()
 	end
 
-	if i > #MR_Spawns then i = 1 end
+	if i > #self.Spawns then i = 1 end
 
-	local spawnEnt = MR_Spawns[i]
+	local spawnEnt = self.Spawns[i]
 	i = i + 1
 
 	return spawnEnt
