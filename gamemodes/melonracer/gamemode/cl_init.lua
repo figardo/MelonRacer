@@ -136,7 +136,7 @@ local unsupported = {
 	["pt-pt"] = "Língua portuguesa europeia não suportada. Contribua aqui:",
 	["sk"] = "Slovenský jazyk nie je podporovaný. Prispejte sem:",
 	-- ["sv-se"] = "Svenska språket stöds inte. Bidra här:",
-	["tr"] = "Türkçe dil desteklenmiyor. Buraya katkıda bulunun:",
+	-- ["tr"] = "Türkçe dil desteklenmiyor. Buraya katkıda bulunun:",
 	-- ["zh-cn"] = "不支持中文（简体）语言。 在这里贡献：",
 	["zh-tw"] = "不支持中文（繁體）語言。 在這裡貢獻："
 }
