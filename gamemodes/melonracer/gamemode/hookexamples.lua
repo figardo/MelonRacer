@@ -90,6 +90,7 @@ elseif CLIENT then -- CLIENT SIDED HOOKS
 
 		local point = vgui.Create("DLabel")
 		point:SetFont("LegacyDefault")
+		point:SetColor(color_white)
 		point:SetSize(w, h)
 		point:SetText(str)
 		point:SetAlpha(0)
