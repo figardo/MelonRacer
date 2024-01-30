@@ -1,10 +1,16 @@
 include("shared.lua")
 include("gui.lua")
 include("hookexamples.lua")
+include("controls.lua")
 
 local textScale = CreateClientConVar("mr_hudscale", "1", true, false, "Text scale multiplier for the HUD.")
 local ntScale = CreateClientConVar("mr_nametagscale", "1", true, false, "Text scale multiplier for the name tags.")
 local enableBeta = CreateClientConVar("mr_betahud", "0", true, true, "Enable GMod 8.4 mode. Disables the stats HUD, replaces the lap animation with text, and shows Checkpoint 0 when the lap point has been hit.")
+
+-- replicated
+CreateClientConVar("mr_godmode", "0")
+CreateClientConVar("mr_forwardspeed", "170")
+CreateClientConVar("mr_reversespeed", "170")
 
 local function CreateNameFont()
 	local scale = ntScale:GetFloat()
@@ -23,26 +29,26 @@ local function CreateOtherFonts()
 
 	surface.CreateFont("ImpactMassive", {
 		font = "Impact",
-		size = ScreenScale(17.5) * scale,
+		size = ScreenScaleH(23.333) * scale,
 		weight = 200
 	})
 
 	surface.CreateFont("DefaultShadow", {
 		font = "Verdana",
-		size = ScreenScale(6) * scale,
+		size = ScreenScaleH(8) * scale,
 		weight = 700,
 		shadow = true
 	})
 
 	surface.CreateFont("LegacyDefault", {
 		font = "Verdana",
-		size = ScreenScale(6) * scale,
+		size = ScreenScaleH(8) * scale,
 		weight = 700
 	})
 
 	surface.CreateFont("ScoreboardText", {
 		font = "Default",
-		size = ScreenScale(4) * scale,
+		size = ScreenScaleH(5.333) * scale,
 		weight = 800
 	})
 end
