@@ -85,14 +85,15 @@ function GM:HandleTrackData(ply)
 
 	local entList = file.Read(prefix .. filename, "DATA"):Split("\n")
 
-	local killEnts = ents.FindByClass("*_player_*")
-	table.Add(killEnts, ents.FindByClass("mr_rearmtrigger"))
-	table.Add(killEnts, ents.FindByClass("prop_physics*"))
+	local removeEnts = ents.FindByClass("*_player_*")
+	table.Add(removeEnts, ents.FindByClass("mr_rearmtrigger"))
+	table.Add(removeEnts, ents.FindByClass("prop_physics*"))
 
-	for _, ent in ipairs(killEnts) do
-		ent:Remove()
+	for i = 1, #removeEnts do
+		removeEnts[i]:Remove()
 	end
 
+	self.TrackMap = true
 	self.Spawns = {}
 	self.HighestID = 0
 
@@ -103,44 +104,47 @@ function GM:HandleTrackData(ply)
 		gmsave.LoadMap(saveData)
 	end
 
-	for _, data in ipairs(entList) do
-		local params = data:Split(" ")
+	timer.Simple(0.1, function() -- gmsave.LoadMap calls game.CleanUpMap, which now cleans up on the next tick, removing this lot in the process
+		for i = 1, #entList do
+			local data = entList[i]
+			local params = data:Split(" ")
 
-		local checkpointID = tonumber(params[1])
-		if checkpointID then
-			local check = ents.Create("mr_rearmtrigger")
+			local checkpointID = tonumber(params[1])
+			if checkpointID then
+				local check = ents.Create("mr_rearmtrigger")
 
-			local posx, posy, posz = tonumber(params[2]), tonumber(params[3]), tonumber(params[4])
-			local mx, my, mz = tonumber(params[5]), tonumber(params[6]), tonumber(params[7])
+				local posx, posy, posz = tonumber(params[2]), tonumber(params[3]), tonumber(params[4])
+				local mx, my, mz = tonumber(params[5]), tonumber(params[6]), tonumber(params[7])
 
-			local pos = Vector(posx, posy, posz)
-			check:SetPos(pos)
-			check:SetPos1(pos)
-			check:SetPos2(Vector(mx, my, mz))
-			check:SetID(checkpointID)
-			check:Spawn()
+				local pos = Vector(posx, posy, posz)
+				check:SetPos(pos)
+				check:SetPos1(pos)
+				check:SetPos2(Vector(mx, my, mz))
+				check:SetID(checkpointID)
+				check:Spawn()
 
-			if checkpointID > self.HighestID then
-				self.HighestID = checkpointID
+				if checkpointID > self.HighestID then
+					self.HighestID = checkpointID
+				end
+			elseif params[1] == "spawn" then
+				local spawn = ents.Create("gmod_player_start")
+
+				local posx, posy, posz = tonumber(params[2]), tonumber(params[3]), tonumber(params[4])
+				spawn:SetPos(Vector(posx, posy, posz))
+
+				local angy = tonumber(params[5])
+				spawn:SetAngles(Angle(0, angy, 0))
+
+				spawn:Spawn()
+
+				self.Spawns[#self.Spawns + 1] = spawn
+			elseif params[1] == "prop" then
+				ply:ChatPrint("This is an old format track. Please load it in the track creator and re-export it to fix it.")
+				ply:ChatPrint("The track creator can be downloaded here: https://steamcommunity.com/sharedfiles/filedetails/?id=2925384863")
+				break
 			end
-		elseif params[1] == "spawn" then
-			local spawn = ents.Create("gmod_player_start")
-
-			local posx, posy, posz = tonumber(params[2]), tonumber(params[3]), tonumber(params[4])
-			spawn:SetPos(Vector(posx, posy, posz))
-
-			local angy = tonumber(params[5])
-			spawn:SetAngles(Angle(0, angy, 0))
-
-			spawn:Spawn()
-
-			table.insert(self.Spawns, spawn)
-		elseif params[1] == "prop" then
-			ply:ChatPrint("This is an old format track. Please load it in the track creator and re-export it to fix it.")
-			ply:ChatPrint("The track creator can be downloaded here: https://steamcommunity.com/sharedfiles/filedetails/?id=2925384863")
-			break
 		end
-	end
+	end)
 
 	if bFirstRoundStarted then
 		self:StartRound()
@@ -245,9 +249,12 @@ function GM:InitPostEntity()
 		end
 	end
 
-	self.Spawns = {}
+	if !self.TrackMap then
+		self.Spawns = {}
 
-	for _, spawn in ipairs(ents.FindByClass("*_player_*")) do
-		table.insert(self.Spawns, spawn)
+		local spawns = ents.FindByClass("*_player_*")
+		for i = 1, #spawns do
+			self.Spawns[#self.Spawns + 1] = spawns[i]
+		end
 	end
 end
