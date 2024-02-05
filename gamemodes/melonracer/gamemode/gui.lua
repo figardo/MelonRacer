@@ -371,11 +371,12 @@ local function DeclareWinner()
 	surface.SetFont("ImpactMassive")
 	local w, h = surface.GetTextSize(winstr)
 	winpnl:SetSize(w, h)
-
 	winpnl:SetPos((ScrW() / 2) - (w / 2), ScrH() / 2)
+	winpnl:SetAlpha(0)
 
 	winpnl:SetText(winstr)
-	winpnl:AlphaTo(0, 0.5, 5, function(_, pnl) pnl:Remove() end)
+	winpnl:AlphaTo(255, 0.5, 0)
+	winpnl:AlphaTo(0, 2, 5.5, function(_, pnl) pnl:Remove() end)
 end
 net.Receive("MelonRacer_Winner", DeclareWinner)
 
