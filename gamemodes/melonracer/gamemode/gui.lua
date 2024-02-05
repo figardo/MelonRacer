@@ -197,9 +197,9 @@ function GM:DoLapZoom()
 	lappnl:SetSize(0, 0)
 	lappnl:AlphaTo(0, 1, 0, function(_, pnl) pnl:Remove() end)
 	lappnl:SizeTo(w * 9, h * 7, 1, 0, 2.5)
+	lappnl:MoveTo(-w * 4, -h * 3, 1, 0, 2.5)
 
 	lappnl.Paint = function(s, x, y)
-		s:SetPos((w / 2) - (x / 2), (h / 2) - (y / 2))
 		surface.SetDrawColor(255, 255, 255)
 		surface.SetMaterial(lap)
 
