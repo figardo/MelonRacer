@@ -109,7 +109,8 @@ function GM:HandleTrackData(ply)
 			local data = entList[i]
 			local params = data:Split(" ")
 
-			local checkpointID = tonumber(params[1])
+			local entity = params[1]
+			local checkpointID = tonumber(entity)
 			if checkpointID then
 				local check = ents.Create("mr_rearmtrigger")
 
@@ -126,7 +127,7 @@ function GM:HandleTrackData(ply)
 				if checkpointID > self.HighestID then
 					self.HighestID = checkpointID
 				end
-			elseif params[1] == "spawn" then
+			elseif entity == "spawn" then
 				local spawn = ents.Create("gmod_player_start")
 
 				local posx, posy, posz = tonumber(params[2]), tonumber(params[3]), tonumber(params[4])
@@ -138,6 +139,33 @@ function GM:HandleTrackData(ply)
 				spawn:Spawn()
 
 				self.Spawns[#self.Spawns + 1] = spawn
+			elseif entity == "tp" then
+				local tpID = tonumber(params[2])
+
+				local posx, posy, posz = tonumber(params[3]), tonumber(params[4]), tonumber(params[5])
+				local pos = Vector(posx, posy, posz)
+
+				local mx, my, mz = tonumber(params[6]), tonumber(params[7]), tonumber(params[8])
+
+				local tp = ents.Create("mr_rearmtp")
+				tp:SetPos(pos)
+				tp:SetPos1(pos)
+				tp:SetPos2(Vector(mx, my, mz))
+				tp:SetID(tpID)
+				tp:Spawn()
+			elseif entity == "tpdest" then
+				local tpdest = ents.Create("mr_rearmtpdest")
+
+				local tpID = tonumber(params[2])
+				tpdest:SetID(tpID)
+
+				local posx, posy, posz = tonumber(params[3]), tonumber(params[4]), tonumber(params[5])
+				tpdest:SetPos(Vector(posx, posy, posz))
+
+				local angy = tonumber(params[6])
+				tpdest:SetAngles(Angle(0, angy, 0))
+
+				tpdest:Spawn()
 			elseif params[1] == "prop" then
 				ply:ChatPrint("This is an old format track. Please load it in the track creator and re-export it to fix it.")
 				ply:ChatPrint("The track creator can be downloaded here: https://steamcommunity.com/sharedfiles/filedetails/?id=2925384863")
