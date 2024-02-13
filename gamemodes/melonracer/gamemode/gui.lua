@@ -63,19 +63,15 @@ function GM:DrawIntro()
 	local w = ScrW()
 	local h = ScrH()
 
-	local shitfix = vgui.Create("DPanel") -- i am so fucking done with this game why does this even work
-	shitfix:SetPos(0, 0)
-	shitfix:SetSize(1, 1)
-	timer.Simple(7, function() shitfix:Remove() end)
-
 	local title = vgui.Create("DPanel")
 	title:SetSize(w * 0.4, h * 0.25)
-	title:SetPos(w * -0.055, h * 0.01)
+	title:SetPos(w * -0.06375, 0)
 
-	title:MoveTo(w * 0.035, h * 0.01, 1, 0, 0.5)
-	title:AlphaTo(0, 1, 5, function(_, pnl) pnl:Remove() end) -- this doesn't work for whatever reason but it removes the panel at least
+	title:MoveTo(w * 0.03, 0, 0.2, 0, 1)
+	title:AlphaTo(1, 1, 5, function(_, pnl) pnl:Remove() end)
 
 	title.Paint = function(s, x, y)
+		surface.SetDrawColor(255, 255, 255)
 		surface.SetMaterial(titlemat)
 
 		s:DrawTexturedRect()
@@ -86,6 +82,7 @@ function GM:DrawIntro()
 	mln1:SetPos(w * -0.4, h * 0.25)
 
 	mln1.Paint = function(s, x, y)
+		surface.SetDrawColor(255, 255, 255)
 		surface.SetMaterial(melon)
 
 		s:DrawTexturedRect()
@@ -100,6 +97,7 @@ function GM:DrawIntro()
 	mln2:SetPos(w * -0.4, h * 0.25)
 
 	mln2.Paint = function(s, x, y)
+		surface.SetDrawColor(255, 255, 255)
 		surface.SetMaterial(melon)
 
 		s:DrawTexturedRect()
@@ -107,7 +105,7 @@ function GM:DrawIntro()
 
 	mln2:MoveTo(w * 1.4, h * 0.3, 2, 1, 1, function(_, pnl) pnl:Remove() end)
 end
--- concommand.Add("mr_intro", DrawIntro)
+-- concommand.Add("mr_intro", function() GAMEMODE:DrawIntro() end)
 
 local function CentreMessage(text, col, font)
 	local w = ScrW()
@@ -132,6 +130,34 @@ function GM:WrongWay()
 	CentreMessage("#MelonRacer.WrongWay", Color(255, 0, 0), "LegacyDefault")
 end
 net.Receive("MelonRacer_WrongWay", function() GAMEMODE:WrongWay() end)
+
+local white = Color(255, 255, 255)
+local function Checkpoint(override)
+	local ply = LocalPlayer()
+
+	ply.Checkpoint = override
+
+	local NewCP = ply.Checkpoint
+
+	if hook.Run("MR_ShowCheckpoint", NewCP) then return end
+
+	local str = string.format(language.GetPhrase("MelonRacer.Checkpoint"), NewCP)
+
+	surface.SetFont("LegacyDefault")
+	local w, h = surface.GetTextSize(str)
+
+	local point = vgui.Create("DLabel")
+	point:SetFont("LegacyDefault")
+	point:SetSize(w, h)
+	point:SetText(str)
+	point:SetAlpha(0)
+	point:SetColor(white)
+
+	point:SetPos((ScrW() / 2) - (w / 2), ScrH() * 0.8)
+	point:AlphaTo(255, 0.2, 0)
+	point:AlphaTo(0, 0.5, 1.5, function(_, pnl) pnl:Remove() end)
+end
+net.Receive("MelonRacer_Checkpoint", function() Checkpoint(net.ReadUInt(8)) end)
 
 local lap = Material("gmod/melonracer/lap")
 function GM:DoLapZoom()
@@ -158,28 +184,27 @@ function GM:DoLapZoom()
 	if hook.Run("MR_LapAnimation") then return end
 
 	if GetConVar("mr_betahud"):GetBool() then
-		CentreMessage("LAP!", color_white, "DefaultShadow")
+		CentreMessage("LAP!", white, "DefaultShadow")
+		Checkpoint(0)
 		return
 	end
 
 	local w = ScrW()
 	local h = ScrH()
 
-	local x, y = 1
-	local endtime = CurTime() + 1
+	local lappnl = vgui.Create("DPanel")
+	lappnl:SetPos(w / 2, h / 2)
+	lappnl:SetSize(0, 0)
+	lappnl:AlphaTo(0, 1, 0, function(_, pnl) pnl:Remove() end)
+	lappnl:SizeTo(w * 9, h * 7, 1, 0, 2.5)
+	lappnl:MoveTo(-w * 4, -h * 3, 1, 0, 2.5)
 
-	hook.Add("HUDPaint", "MR_LAP", function()
-		local ct = CurTime()
-		x = Lerp(endtime - ct, w * 5, 1)
-		y = Lerp(endtime - ct, h * 5, 1)
-		a = Lerp(endtime - ct, 0, 255)
-
-		surface.SetDrawColor(255, 255, 255, a)
+	lappnl.Paint = function(s, x, y)
+		surface.SetDrawColor(255, 255, 255)
 		surface.SetMaterial(lap)
-		surface.DrawTexturedRect((w / 2) - (x / 2), (h / 2) - (y / 2), x, y)
-	end)
 
-	timer.Simple(1, function() hook.Remove("HUDPaint", "MR_LAP") end)
+		s:DrawTexturedRect()
+	end
 end
 net.Receive("MelonRacer_PlayerLap", function() GAMEMODE:DoLapZoom() end)
 
@@ -346,38 +371,15 @@ local function DeclareWinner()
 	surface.SetFont("ImpactMassive")
 	local w, h = surface.GetTextSize(winstr)
 	winpnl:SetSize(w, h)
-
 	winpnl:SetPos((ScrW() / 2) - (w / 2), ScrH() / 2)
+	winpnl:SetAlpha(0)
 
 	winpnl:SetText(winstr)
-	winpnl:AlphaTo(0, 0.5, 5, function(_, pnl) pnl:Remove() end)
+	winpnl:AlphaTo(255, 0.5, 0)
+	winpnl:AlphaTo(0, 2, 5.5, function(_, pnl) pnl:Remove() end)
 end
 net.Receive("MelonRacer_Winner", DeclareWinner)
 
-local function Checkpoint(ply, cmd, args)
-	local NewCP = tonumber(args[1])
-	ply.Checkpoint = NewCP
-
-	if hook.Run("MR_ShowCheckpoint", NewCP) then return end
-
-	local str = string.format(language.GetPhrase("MelonRacer.Checkpoint"), NewCP)
-
-	surface.SetFont("LegacyDefault")
-	local w, h = surface.GetTextSize(str)
-
-	local point = vgui.Create("DLabel")
-	point:SetFont("LegacyDefault")
-	point:SetSize(w, h)
-	point:SetText(str)
-	point:SetAlpha(0)
-
-	point:SetPos((ScrW() / 2) - (w / 2), ScrH() * 0.8)
-	point:AlphaTo(255, 0.2, 0)
-	point:AlphaTo(0, 0.5, 1.5, function(_, pnl) pnl:Remove() end)
-end
-concommand.Add("cl_mr_checkpoint", Checkpoint)
-
-local white = Color(255, 255, 255)
 local black = Color(0, 0, 0)
 local function DrawRoundStart(iNumber)
 	local sw = ScrW()
@@ -470,20 +472,23 @@ local function OnPlayerRespawn()
 			local respawnStr = string.format(language.GetPhrase("MelonRacer.Respawning"), Seconds)
 
 			-- Show respawn text
-			draw.SimpleTextOutlined(respawnStr, "ScoreboardText", w * 0.5, h * 0.5, color_white, 1, 1, 1, Color(0, 0, 0, 255))
+			draw.SimpleTextOutlined(respawnStr, "ScoreboardText", w * 0.5, h * 0.5, white, 1, 1, 1, Color(0, 0, 0, 255))
 
 			if !respawningAtLast then
-				draw.SimpleTextOutlined(lastCheckHint, "ScoreboardText", w * 0.5, h * 0.5 + 15, color_white, 1, 1, 1, Color(0, 0, 0, 255))
+				draw.SimpleTextOutlined(lastCheckHint, "ScoreboardText", w * 0.5, h * 0.5 + 15, white, 1, 1, 1, Color(0, 0, 0, 255))
 			end
 
 			local diff = CurTime() - delta
 			delta = CurTime()
 			respawnTime = respawnTime - diff
 		end)
-	end
 
-	if ply.Checkpoint == 0 then
-		ply.LapStart = CurTime() - respawnTime
+		if ply.Checkpoint == 0 then
+			ply.LapStart = CurTime() - respawnTime
+		end
+
+	else
+		ply.Checkpoint = 0
 	end
 end
 net.Receive("MelonRacer_PlayerRespawn", OnPlayerRespawn)

@@ -100,6 +100,12 @@ function GM:PlayerSpawn(ply)
 		iMelon:SetKeyValue("physdamagescale", "0")
 	end
 
+	-- still doesn't feel right
+	-- if self.GM9_PHYSICS then
+	-- 	local phys = iMelon:GetPhysicsObject()
+	-- 	phys:SetInertia(phys:GetInertia() * 1.5)
+	-- end
+
 	ply:SetMelon(iMelon)
 
 	-- We need to time this because PlayerSpawn is called while they're still spawning
@@ -139,6 +145,7 @@ function GM:PropBreak(att, prop)
 
 		iPlayer:Spawn()
 	end)
+
 	iPlayer:SetMelon(nil)
 end
 
@@ -213,7 +220,9 @@ function HitCheckpoint(newCheck)
 
 	-- Going forwards - but no lap.
 	if newCheck == lastCheck + 1 then
-		iPlayer:ConCommand("cl_mr_checkpoint " .. newCheck)
+		net.Start("MelonRacer_Checkpoint")
+			net.WriteUInt(newCheck, 8)
+		net.Send(iPlayer)
 
 		iPlayer.Checkpoint = newCheck
 		GAMEMODE:UpdatePositions()
@@ -222,10 +231,6 @@ function HitCheckpoint(newCheck)
 	-- Lap!
 	local us = GAMEMODE.ALLOW_SHORTCUT
 	if newCheck == 0 and ((us and lastCheck > 1) or (!us and lastCheck == highestID)) then
-		if iPlayer:GetInfoNum("mr_betahud", 0) == 1 then
-			iPlayer:ConCommand("cl_mr_checkpoint 0")
-		end
-
 		GAMEMODE:CountLap(iPlayer)
 	end
 
