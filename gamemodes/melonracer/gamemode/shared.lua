@@ -40,8 +40,9 @@ function MR_ReadPlayer()
 	return ent
 end
 
+local developer = GetConVar("developer")
 function DevPrint(...) -- ttt my beloved
-	if !GetConVar("developer"):GetBool() then return end
+	if !developer:GetBool() then return end
 
 	Msg("[MelonRacer]")
 	-- table.concat does not tostring, derp

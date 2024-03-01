@@ -149,6 +149,7 @@ local unsupported = {
 	["zh-tw"] = "不支持中文（繁體）語言。 在這裡貢獻："
 }
 
+local langcvar = GetConVar("gmod_language")
 function GM:InitPostEntity()
 	local ply = LocalPlayer()
 	ply.CamDistance = 10
@@ -157,7 +158,7 @@ function GM:InitPostEntity()
 
 	self:ResetStats()
 
-	local lang = GetConVar("gmod_language"):GetString():lower()
+	local lang = langcvar:GetString():lower()
 	if unsupported[lang] then
 		ply:ChatPrint("Selected language is unsupported. Contribute here: https://crowdin.com/project/melonracer")
 		ply:ChatPrint(unsupported[lang] .. " https://crowdin.com/project/melonracer")

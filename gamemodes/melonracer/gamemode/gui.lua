@@ -159,6 +159,7 @@ local function Checkpoint(override)
 end
 net.Receive("MelonRacer_Checkpoint", function() Checkpoint(net.ReadUInt(8)) end)
 
+local betahud = GetConVar("mr_betahud")
 local lap = Material("gmod/melonracer/lap")
 function GM:DoLapZoom()
 	local ply = LocalPlayer()
@@ -183,7 +184,7 @@ function GM:DoLapZoom()
 
 	if hook.Run("MR_LapAnimation") then return end
 
-	if GetConVar("mr_betahud"):GetBool() then
+	if betahud:GetBool() then
 		CentreMessage("LAP!", white, "DefaultShadow")
 		Checkpoint(0)
 		return
