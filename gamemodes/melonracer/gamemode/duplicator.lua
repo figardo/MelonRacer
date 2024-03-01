@@ -1,5 +1,79 @@
 -- one big copy-paste job from sandbox
 
+local dupeNPCs = {
+	-- HL2
+	"npc_alyx",
+	"npc_magnusson",
+	"npc_breen",
+	"npc_kleiner",
+	"npc_antlion",
+	"npc_antlion_worker",
+	"npc_antlion_grub",
+	"npc_antlionguard",
+	"npc_barnacle",
+	"npc_barney",
+	"npc_combine_s",
+	"npc_crow",
+	"npc_cscanner",
+	"npc_clawscanner",
+	"npc_dog",
+	"npc_eli",
+	"npc_gman",
+	"npc_headcrab",
+	"npc_headcrab_black",
+	"npc_headcrab_poison",
+	"npc_headcrab_fast",
+	"npc_manhack",
+	"npc_metropolice",
+	"npc_monk",
+	"npc_mossman",
+	"npc_pigeon",
+	"npc_rollermine",
+	"npc_strider",
+	"npc_helicopter",
+	"npc_combinegunship",
+	"npc_combinedropship",
+	"npc_turret_ceiling",
+	"npc_combine_camera",
+	"npc_turret_floor",
+	"npc_vortigaunt",
+	"npc_hunter",
+	"npc_sniper",
+	"npc_seagull",
+	"npc_citizen",
+	"npc_stalker",
+	"npc_fisherman",
+	"npc_zombie",
+	"npc_zombie_torso",
+	"npc_zombine",
+	"npc_poisonzombie",
+	"npc_fastzombie",
+	"npc_fastzombie_torso",
+
+	-- HL1
+	"monster_alien_grunt",
+	"monster_alien_slave",
+	"monster_alien_controller",
+	"monster_barney",
+	"monster_bigmomma",
+	"monster_bullchicken",
+	"monster_babycrab",
+	"monster_cockroach",
+	"monster_houndeye",
+	"monster_headcrab",
+	"monster_gargantua",
+	"monster_human_assassin",
+	"monster_human_grunt",
+	"monster_scientist",
+	"monster_snark",
+	"monster_nihilanth",
+	"monster_tentacle",
+	"monster_zombie",
+	"monster_turret",
+	"monster_miniturret",
+	"monster_sentry"
+}
+
 function GM:RegisterDupeEnts()
 	local function FixInvalidPhysicsObject( Prop )
 
@@ -291,77 +365,9 @@ function GM:RegisterDupeEnts()
 	duplicator.RegisterEntityClass( "prop_physics_multiplayer", MakeProp, "Pos", "Ang", "Model", "PhysicsObjects", "Data" )
 	duplicator.RegisterEntityClass( "prop_effect", MakeEffect, "Model", "Data" )
 
-	-- HL2
-	AddNPCToDuplicator( "npc_alyx" )
-	AddNPCToDuplicator( "npc_magnusson" )
-	AddNPCToDuplicator( "npc_breen" )
-	AddNPCToDuplicator( "npc_kleiner" )
-	AddNPCToDuplicator( "npc_antlion" )
-	AddNPCToDuplicator( "npc_antlion_worker" )
-	AddNPCToDuplicator( "npc_antlion_grub" )
-	AddNPCToDuplicator( "npc_antlionguard" )
-	AddNPCToDuplicator( "npc_barnacle" )
-	AddNPCToDuplicator( "npc_barney" )
-	AddNPCToDuplicator( "npc_combine_s" )
-	AddNPCToDuplicator( "npc_crow" )
-	AddNPCToDuplicator( "npc_cscanner" )
-	AddNPCToDuplicator( "npc_clawscanner" )
-	AddNPCToDuplicator( "npc_dog" )
-	AddNPCToDuplicator( "npc_eli" )
-	AddNPCToDuplicator( "npc_gman" )
-	AddNPCToDuplicator( "npc_headcrab" )
-	AddNPCToDuplicator( "npc_headcrab_black" )
-	AddNPCToDuplicator( "npc_headcrab_poison" )
-	AddNPCToDuplicator( "npc_headcrab_fast" )
-	AddNPCToDuplicator( "npc_manhack" )
-	AddNPCToDuplicator( "npc_metropolice" )
-	AddNPCToDuplicator( "npc_monk" )
-	AddNPCToDuplicator( "npc_mossman" )
-	AddNPCToDuplicator( "npc_pigeon" )
-	AddNPCToDuplicator( "npc_rollermine" )
-	AddNPCToDuplicator( "npc_strider" )
-	AddNPCToDuplicator( "npc_helicopter" )
-	AddNPCToDuplicator( "npc_combinegunship" )
-	AddNPCToDuplicator( "npc_combinedropship" )
-	AddNPCToDuplicator( "npc_turret_ceiling" )
-	AddNPCToDuplicator( "npc_combine_camera" )
-	AddNPCToDuplicator( "npc_turret_floor" )
-	AddNPCToDuplicator( "npc_vortigaunt" )
-	AddNPCToDuplicator( "npc_hunter" )
-	AddNPCToDuplicator( "npc_sniper" )
-	AddNPCToDuplicator( "npc_seagull" )
-	AddNPCToDuplicator( "npc_citizen" )
-	AddNPCToDuplicator( "npc_stalker" )
-	AddNPCToDuplicator( "npc_fisherman" )
-	AddNPCToDuplicator( "npc_zombie" )
-	AddNPCToDuplicator( "npc_zombie_torso" )
-	AddNPCToDuplicator( "npc_zombine" )
-	AddNPCToDuplicator( "npc_poisonzombie" )
-	AddNPCToDuplicator( "npc_fastzombie" )
-	AddNPCToDuplicator( "npc_fastzombie_torso" )
-
-	-- HL1
-	AddNPCToDuplicator( "monster_alien_grunt" )
-	AddNPCToDuplicator( "monster_alien_slave" )
-	AddNPCToDuplicator( "monster_alien_controller" )
-	AddNPCToDuplicator( "monster_barney" )
-	AddNPCToDuplicator( "monster_bigmomma" )
-	AddNPCToDuplicator( "monster_bullchicken" )
-	AddNPCToDuplicator( "monster_babycrab" )
-	AddNPCToDuplicator( "monster_cockroach" )
-	AddNPCToDuplicator( "monster_houndeye" )
-	AddNPCToDuplicator( "monster_headcrab" )
-	AddNPCToDuplicator( "monster_gargantua" )
-	AddNPCToDuplicator( "monster_human_assassin" )
-	AddNPCToDuplicator( "monster_human_grunt" )
-	AddNPCToDuplicator( "monster_scientist" )
-	AddNPCToDuplicator( "monster_snark" )
-	AddNPCToDuplicator( "monster_nihilanth" )
-	AddNPCToDuplicator( "monster_tentacle" )
-	AddNPCToDuplicator( "monster_zombie" )
-	AddNPCToDuplicator( "monster_turret" )
-	AddNPCToDuplicator( "monster_miniturret" )
-	AddNPCToDuplicator( "monster_sentry" )
+	for i = 1, #dupeNPCs do
+		AddNPCToDuplicator(dupeNPCs[i])
+	end
 
 	self.DupeEntsRegistered = true
 end
