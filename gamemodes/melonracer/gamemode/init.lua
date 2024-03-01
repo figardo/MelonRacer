@@ -162,7 +162,7 @@ function GM:HandleTrackData(ply)
 	self.HighestID = 0
 
 	local saveData = entList[#entList]
-	if string.StartWith(saveData, "{") then
+	if string.StartsWith(saveData, "{") then
 		self:RegisterDupeEnts()
 
 		gmsave.LoadMap(saveData)
