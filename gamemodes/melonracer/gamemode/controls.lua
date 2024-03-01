@@ -24,6 +24,10 @@ function GM:DoReverse(ply, melon)
 	melon:GetPhysicsObject():ApplyForceCenter(vAim)
 end
 
+local isGod = GetConVar("mr_godmode")
+local forwardspeed = GetConVar("mr_forwardspeed")
+local reversespeed = GetConVar("mr_reversespeed")
+
 local still = Vector(0, 0, 0)
 function GM:StartCommand(ply, ucmd)
 	local melon = ply:GetMelon()
@@ -47,7 +51,7 @@ function GM:StartCommand(ply, ucmd)
 				self:DoReverse(ply, melon)
 			end
 		end
-	elseif !GetConVar("mr_godmode"):GetBool() and GetConVar("mr_forwardspeed"):GetInt() == 170 and GetConVar("mr_reversespeed"):GetInt() == 40 then
+	elseif !isGod:GetBool() and forwardspeed:GetInt() == 170 and reversespeed:GetInt() == 40 then
 		ply:SetAbsVelocity(melon:GetVelocity())
 	end
 end
