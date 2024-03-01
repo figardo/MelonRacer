@@ -62,7 +62,7 @@ function GM:CheckRoundFinished(ply)
 	bRestartingRound = true
 
 	net.Start("MelonRacer_Winner")
-		net.WriteEntity(ply)
+		MR_WritePlayer(ply)
 	net.Broadcast()
 end
 

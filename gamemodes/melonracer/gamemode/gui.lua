@@ -357,7 +357,7 @@ end
 
 local wincol = Color(0, 255, 0)
 local function DeclareWinner()
-	local winner = net.ReadEntity()
+	local winner = MR_ReadPlayer()
 	if !IsValid(winner) then return end
 
 	if hook.Run("MR_ShowWinner", winner) then return end
