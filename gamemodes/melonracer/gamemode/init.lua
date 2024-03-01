@@ -87,6 +87,8 @@ function GM:HandleTrackData(ply)
 
 	local removeEnts = ents.FindByClass("*_player_*")
 	table.Add(removeEnts, ents.FindByClass("mr_rearmtrigger"))
+	table.Add(removeEnts, ents.FindByClass("mr_rearmtp"))
+	table.Add(removeEnts, ents.FindByClass("mr_rearmtpdest"))
 	table.Add(removeEnts, ents.FindByClass("prop_physics*"))
 
 	for i = 1, #removeEnts do
