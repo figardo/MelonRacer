@@ -76,6 +76,68 @@ function GM:Initialize()
 	hook.Remove("Think", "qtg_plyhighspeeddmg") -- remove incompatible addon
 end
 
+local spawnFuncs = {
+	["checkpoint"] = function(gmtbl, params)
+		local check = ents.Create("mr_rearmtrigger")
+
+		local checkpointID = tonumber(params[1])
+		check:SetID(checkpointID)
+
+		local pos = Vector(tonumber(params[2]), tonumber(params[3]), tonumber(params[4]))
+		check:SetPos(pos)
+		check:SetPos1(pos)
+		check:SetPos2(Vector(tonumber(params[5]), tonumber(params[6]), tonumber(params[7])))
+
+		check:Spawn()
+
+		if checkpointID > gmtbl.HighestID then
+			gmtbl.HighestID = checkpointID
+		end
+	end,
+	["spawn"] = function(gmtbl, params)
+		local spawn = ents.Create("gmod_player_start")
+
+		spawn:SetPos(Vector(tonumber(params[2]), tonumber(params[3]), tonumber(params[4])))
+		spawn:SetAngles(Angle(0, tonumber(params[5]), 0))
+
+		spawn:Spawn()
+
+		gmtbl.Spawns[#gmtbl.Spawns + 1] = spawn
+	end,
+	["tp"] = function(gmtbl, params)
+		local tp = ents.Create("mr_rearmtp")
+
+		tp:SetID(tonumber(params[2]))
+
+		local pos = Vector(tonumber(params[3]), tonumber(params[4]), tonumber(params[5]))
+		tp:SetPos(pos)
+		tp:SetPos1(pos)
+		tp:SetPos2(Vector(tonumber(params[6]), tonumber(params[7]), tonumber(params[8])))
+
+		tp:Spawn()
+	end,
+	["tpdest"] = function(gmtbl, params)
+		local tpdest = ents.Create("mr_rearmtpdest")
+
+		tpdest:SetID(tonumber(params[2]))
+		tpdest:SetPos(Vector(tonumber(params[3]), tonumber(params[4]), tonumber(params[5])))
+		tpdest:SetAngles(Angle(0, tonumber(params[6]), 0))
+
+		tpdest:Spawn()
+	end,
+	["prop"] = function(gmtbl, params)
+		local prop = ents.Create("prop_physics")
+
+		prop:SetModel(params[2])
+		prop:SetPos(Vector(tonumber(params[3]), tonumber(params[4]), tonumber(params[5])))
+		prop:SetAngles(Angle(tonumber(params[6]), tonumber(params[7]), tonumber(params[8])))
+
+		prop:Spawn()
+
+		prop:GetPhysicsObject():EnableMotion(!tobool(params[9]))
+	end
+}
+
 function GM:HandleTrackData(ply)
 	if !ply:IsAdmin() then return end
 
@@ -107,6 +169,8 @@ function GM:HandleTrackData(ply)
 	end
 
 	timer.Simple(0.1, function() -- gmsave.LoadMap calls game.CleanUpMap, which now cleans up on the next tick, removing this lot in the process
+		local oldtrack = false
+
 		for i = 1, #entList do
 			local data = entList[i]
 			local params = data:Split(" ")
@@ -114,65 +178,20 @@ function GM:HandleTrackData(ply)
 			local entity = params[1]
 			local checkpointID = tonumber(entity)
 			if checkpointID then
-				local check = ents.Create("mr_rearmtrigger")
-
-				local posx, posy, posz = tonumber(params[2]), tonumber(params[3]), tonumber(params[4])
-				local mx, my, mz = tonumber(params[5]), tonumber(params[6]), tonumber(params[7])
-
-				local pos = Vector(posx, posy, posz)
-				check:SetPos(pos)
-				check:SetPos1(pos)
-				check:SetPos2(Vector(mx, my, mz))
-				check:SetID(checkpointID)
-				check:Spawn()
-
-				if checkpointID > self.HighestID then
-					self.HighestID = checkpointID
-				end
-			elseif entity == "spawn" then
-				local spawn = ents.Create("gmod_player_start")
-
-				local posx, posy, posz = tonumber(params[2]), tonumber(params[3]), tonumber(params[4])
-				spawn:SetPos(Vector(posx, posy, posz))
-
-				local angy = tonumber(params[5])
-				spawn:SetAngles(Angle(0, angy, 0))
-
-				spawn:Spawn()
-
-				self.Spawns[#self.Spawns + 1] = spawn
-			elseif entity == "tp" then
-				local tpID = tonumber(params[2])
-
-				local posx, posy, posz = tonumber(params[3]), tonumber(params[4]), tonumber(params[5])
-				local pos = Vector(posx, posy, posz)
-
-				local mx, my, mz = tonumber(params[6]), tonumber(params[7]), tonumber(params[8])
-
-				local tp = ents.Create("mr_rearmtp")
-				tp:SetPos(pos)
-				tp:SetPos1(pos)
-				tp:SetPos2(Vector(mx, my, mz))
-				tp:SetID(tpID)
-				tp:Spawn()
-			elseif entity == "tpdest" then
-				local tpdest = ents.Create("mr_rearmtpdest")
-
-				local tpID = tonumber(params[2])
-				tpdest:SetID(tpID)
-
-				local posx, posy, posz = tonumber(params[3]), tonumber(params[4]), tonumber(params[5])
-				tpdest:SetPos(Vector(posx, posy, posz))
-
-				local angy = tonumber(params[6])
-				tpdest:SetAngles(Angle(0, angy, 0))
-
-				tpdest:Spawn()
-			elseif params[1] == "prop" then
-				ply:ChatPrint("This is an old format track. Please load it in the track creator and re-export it to fix it.")
-				ply:ChatPrint("The track creator can be downloaded here: https://steamcommunity.com/sharedfiles/filedetails/?id=2925384863")
-				break
+				entity = "checkpoint"
+			elseif entity == "prop" then
+				oldtrack = true
 			end
+
+			local spawnfunc = spawnFuncs[entity]
+			if !spawnfunc then continue end
+
+			spawnfunc(self, params)
+		end
+
+		if oldtrack then
+			ply:ChatPrint("This is an old format track. Please load it in the track creator and re-export it.")
+			ply:ChatPrint("The track creator can be downloaded here: https://steamcommunity.com/sharedfiles/filedetails/?id=2925384863")
 		end
 	end)
 
