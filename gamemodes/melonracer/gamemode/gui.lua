@@ -37,7 +37,7 @@ function GM:UpdatePlayerLabels()
 	surface.SetFont("BrandingSmall")
 
 	for _, ply in ipairs(player.GetAll()) do
-		local plymel = ply:GetNWEntity("melon")
+		local plymel = ply:GetMelon()
 		if !IsValid(plymel) then continue end
 
 		local pos = plymel:GetPos()

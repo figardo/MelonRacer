@@ -95,7 +95,7 @@ function GM:StartRound()
 		ply:Spawn()
 
 		-- If the player doesn't have a melon then we're fucked anyway so lets not do any error checking
-		ply.Melon:GetPhysicsObject():EnableMotion(false)
+		ply:GetMelon():GetPhysicsObject():EnableMotion(false)
 	end
 
 	net.Start("MelonRacer_StartRound")
@@ -116,7 +116,7 @@ function GM:RaceStart()
 	for _, ply in ipairs(player.GetAll()) do
 		ply.LapStart = CurTime()
 
-		local plymel = ply.Melon
+		local plymel = ply:GetMelon()
 		if IsValid(ply) and IsValid(plymel) then
 			-- unfreeze the melon
 			plymel:GetPhysicsObject():EnableMotion(true)

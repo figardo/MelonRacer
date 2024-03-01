@@ -1,7 +1,9 @@
 include("shared.lua")
 include("gui.lua")
 include("hookexamples.lua")
+
 include("controls.lua")
+include("sh_player_ext.lua")
 
 local textScale = CreateClientConVar("mr_hudscale", "1", true, false, "Text scale multiplier for the HUD.")
 local ntScale = CreateClientConVar("mr_nametagscale", "1", true, false, "Text scale multiplier for the name tags.")

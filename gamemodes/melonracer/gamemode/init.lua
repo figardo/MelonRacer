@@ -29,20 +29,22 @@
 ]]
 
 AddCSLuaFile("cl_init.lua")
-AddCSLuaFile("shared.lua")
-AddCSLuaFile("controls.lua")
+AddCSLuaFile("gui.lua")
+
 include("shared.lua")
+AddCSLuaFile("shared.lua")
+include("controls.lua")
+AddCSLuaFile("controls.lua")
+include("hookexamples.lua")
+AddCSLuaFile("hookexamples.lua")
+include("sh_player_ext.lua")
+AddCSLuaFile("sh_player_ext.lua")
 
 include("convars.lua")
 include("gamerules.lua")
 include("events.lua")
-include("controls.lua")
-include("hookexamples.lua")
 include("duplicator.lua")
 include("sv_player_ext.lua")
-
-AddCSLuaFile("gui.lua")
-AddCSLuaFile("hookexamples.lua")
 
 util.AddNetworkString("MelonRacer_PlayerLap")
 util.AddNetworkString("MelonRacer_Lap")

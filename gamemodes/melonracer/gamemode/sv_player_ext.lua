@@ -20,7 +20,7 @@ function meta:ResetStats()
 end
 
 function meta:BreakMelon()
-	local plymel = self.Melon
+	local plymel = self:GetMelon()
 
 	if !IsValid(plymel) then return end
 
@@ -67,10 +67,4 @@ function meta:DoneLap()
 			net.WriteFloat(GAMEMODE.Stats.BestLap)
 		end
 	net.SendOmit(self)
-end
-
-function meta:SetMelon(ent)
-	-- Set our new melon
-	self.Melon = ent
-	self:SetNWEntity("melon", ent)
 end
