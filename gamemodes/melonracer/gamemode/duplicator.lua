@@ -362,4 +362,6 @@ function GM:RegisterDupeEnts()
 	AddNPCToDuplicator( "monster_turret" )
 	AddNPCToDuplicator( "monster_miniturret" )
 	AddNPCToDuplicator( "monster_sentry" )
+
+	self.DupeEntsRegistered = true
 end

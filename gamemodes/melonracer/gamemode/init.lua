@@ -68,6 +68,8 @@ function GM:Initialize()
 	self.Stats.SecondPlace = 0
 	self.Stats.ThirdPlace = 0
 
+	self.DupeEntsRegistered = false
+
 	bRestartingRound	=	false
 	bFirstRoundStarted	=	false -- We start a round when the first player spawns
 	bIntermission		=	false
@@ -163,7 +165,9 @@ function GM:HandleTrackData(ply)
 
 	local saveData = entList[#entList]
 	if string.StartsWith(saveData, "{") then
-		self:RegisterDupeEnts()
+		if !self.DupeEntsRegistered then
+			self:RegisterDupeEnts()
+		end
 
 		gmsave.LoadMap(saveData)
 	end
