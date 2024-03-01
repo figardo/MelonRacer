@@ -193,11 +193,11 @@ function GM:HandleTrackData(ply)
 			ply:ChatPrint("This is an old format track. Please load it in the track creator and re-export it.")
 			ply:ChatPrint("The track creator can be downloaded here: https://steamcommunity.com/sharedfiles/filedetails/?id=2925384863")
 		end
-	end)
 
-	if bFirstRoundStarted then
-		self:StartRound()
-	end
+		if bFirstRoundStarted then
+			self:StartRound()
+		end
+	end)
 end
 net.Receive("MelonRacer_SelectTrack", function(_, ply) GAMEMODE:HandleTrackData(ply) end)
 
