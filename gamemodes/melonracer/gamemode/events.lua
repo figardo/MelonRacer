@@ -85,7 +85,7 @@ function GM:PlayerSpawn(ply)
 
 		ply.RespawnCheckpoint = 0
 
-		if bRoundStarted then
+		if self.RoundStarted then
 			ply.LapStart = CurTime()
 		end
 	end
@@ -112,13 +112,13 @@ function GM:PlayerSpawn(ply)
 	-- We need to time this because PlayerSpawn is called while they're still spawning
 	timer.Simple(0.1, function() self:SetSpectatorMode(ply, iMelon) end)
 
-	if !bFirstRoundStarted then
+	if !self.FirstRoundStarted then
 		timer.Simple(2, function() self:StartRound() end)
-		bFirstRoundStarted = true
+		self.FirstRoundStarted = true
 	end
 
 	-- If they're spawning during the intermission - freeze them.
-	if bIntermission then
+	if self.Intermission then
 		iMelon:GetPhysicsObject():EnableMotion(false)
 	end
 end
@@ -242,7 +242,7 @@ end
 
 function GM:KeyPress(ply, in_key)
 	if ply.FinishedRace then return false end
-	if bIntermission then return false end
+	if self.Intermission then return false end
 
 	if in_key == IN_ATTACK and ply:Team() == TEAM_SPECTATOR then
 		ply:SetTeam(1)

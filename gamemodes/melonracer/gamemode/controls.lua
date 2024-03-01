@@ -26,18 +26,12 @@ end
 
 local still = Vector(0, 0, 0)
 function GM:StartCommand(ply, ucmd)
-	local melon = ply.Melon
+	local melon = ply:GetMelon()
 	if !IsValid(melon) then
 		if SERVER then return end
 
-		melon = ply:GetNWEntity("melon")
-
-		if !IsValid(melon) then
-			ply:SetAbsVelocity(still)
-			return
-		else
-			ply.Melon = melon
-		end
+		ply:SetAbsVelocity(still)
+		return
 	end
 
 	if SERVER then
@@ -59,7 +53,7 @@ function GM:StartCommand(ply, ucmd)
 end
 
 function GM:PlayerButtonDown(ply, key)
-	if CLIENT or ply:Team() == TEAM_SPECTATOR or IsValid(ply.Melon) or !self.CHECKPOINT_RESPAWN or ply.GoingToPreviousCheckpoint or key != MOUSE_FIRST then return end
+	if CLIENT or ply:Team() == TEAM_SPECTATOR or IsValid(ply:GetMelon()) or !self.CHECKPOINT_RESPAWN or ply.GoingToPreviousCheckpoint or key != MOUSE_FIRST then return end
 
 	local curCheck = ply.RespawnCheckpoint
 	ply.RespawnCheckpoint = curCheck == 0 and self.HighestID or ply.RespawnCheckpoint - 1

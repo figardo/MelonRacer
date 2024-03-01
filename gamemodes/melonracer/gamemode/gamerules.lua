@@ -53,13 +53,13 @@ function GM:CheckRoundFinished(ply)
 
 	ply.FinishedRace = true
 
-	if bRestartingRound then return end
+	if self.RestartingRound then return end
 
 	if !hook.Run("MR_EndRound", ply) then
 		timer.Simple(self.POST_ROUND, function() self:StartRound() end)
 	end
 
-	bRestartingRound = true
+	self.RestartingRound = true
 
 	net.Start("MelonRacer_Winner")
 		MR_WritePlayer(ply)
@@ -102,9 +102,9 @@ function GM:StartRound()
 		net.WriteUInt(self.COUNTDOWN, 5)
 	net.Broadcast()
 
-	bRestartingRound	=	false
-	bIntermission		=	true
-	bRoundStarted		=	true
+	self.RestartingRound = false
+	self.Intermission = true
+	self.RoundStarted = true
 
 	hook.Run("MR_PrepRound")
 
@@ -124,8 +124,8 @@ function GM:RaceStart()
 		end
 	end
 
-	bIntermission		=	false
-	bRestartingRound	=	false
+	self.Intermission = false
+	self.RestartingRound = false
 
 	hook.Run("MR_StartRound")
 end

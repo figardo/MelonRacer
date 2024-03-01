@@ -70,10 +70,10 @@ function GM:Initialize()
 
 	self.DupeEntsRegistered = false
 
-	bRestartingRound	=	false
-	bFirstRoundStarted	=	false -- We start a round when the first player spawns
-	bIntermission		=	false
-	bRoundStarted = false
+	self.RestartingRound = false
+	self.FirstRoundStarted = false -- We start a round when the first player spawns
+	self.Intermission = false
+	self.RoundStarted = false
 
 	hook.Remove("Think", "qtg_plyhighspeeddmg") -- remove incompatible addon
 end
@@ -198,7 +198,7 @@ function GM:HandleTrackData(ply)
 			ply:ChatPrint("The track creator can be downloaded here: https://steamcommunity.com/sharedfiles/filedetails/?id=2925384863")
 		end
 
-		if bFirstRoundStarted then
+		if self.FirstRoundStarted then
 			self:StartRound()
 		end
 	end)
