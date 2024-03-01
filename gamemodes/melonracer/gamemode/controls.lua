@@ -24,6 +24,7 @@ function GM:DoReverse(ply, melon)
 	melon:GetPhysicsObject():ApplyForceCenter(vAim)
 end
 
+local still = Vector(0, 0, 0)
 function GM:StartCommand(ply, ucmd)
 	local melon = ply.Melon
 	if !IsValid(melon) then
@@ -32,7 +33,7 @@ function GM:StartCommand(ply, ucmd)
 		melon = ply:GetNWEntity("melon")
 
 		if !IsValid(melon) then
-			ply:SetAbsVelocity(Vector(0, 0, 0))
+			ply:SetAbsVelocity(still)
 			return
 		else
 			ply.Melon = melon
