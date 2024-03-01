@@ -107,6 +107,7 @@ function GM:PlayerSpawn(ply)
 	-- end
 
 	ply:SetMelon(iMelon)
+	iMelon.Player = ply
 
 	-- We need to time this because PlayerSpawn is called while they're still spawning
 	timer.Simple(0.1, function() self:SetSpectatorMode(ply, iMelon) end)
@@ -151,6 +152,8 @@ end
 
 -- Coverts a melon to a player
 function MelonToPlayer(Melon)
+	if Melon.Player then return Melon.Player end
+
 	for _, ply in ipairs(player.GetAll()) do
 		local plymel = ply.Melon
 		if !IsValid(plymel) or plymel != Melon then continue end
