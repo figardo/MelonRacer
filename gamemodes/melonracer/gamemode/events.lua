@@ -137,6 +137,8 @@ function GM:PropBreak(att, prop)
 	net.Send(iPlayer)
 
 	timer.Simple(time, function()
+		if IsValid(iPlayer:GetMelon()) then return end
+
 		if !IsValid(iPlayer) then
 			ErrorNoHalt("[ERROR] Somehow, melon " .. prop:EntIndex() .. " doesn't have a player entity. Retrying...")
 
@@ -146,8 +148,6 @@ function GM:PropBreak(att, prop)
 
 		iPlayer:Spawn()
 	end)
-
-	iPlayer:SetMelon(nil)
 end
 
 -- Coverts a melon to a player
@@ -246,7 +246,7 @@ function GM:KeyPress(ply, in_key)
 
 	if in_key == IN_ATTACK and ply:Team() == TEAM_SPECTATOR then
 		ply:SetTeam(1)
-		ply:Spawn(userid)
+		ply:Spawn()
 	end
 end
 
