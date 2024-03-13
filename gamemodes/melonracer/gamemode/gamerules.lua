@@ -27,20 +27,19 @@ function GM:UpdatePositions()
 
 		self.CurrentPlaces = Places
 	else
-		local first = Places[1]
-		local second = Places[2]
-		local third = Places[3]
-
-		-- Set our leaders
-		self.Stats.FirstPlace = (first and IsValid(first.Player)) and Places[1].Player or 0
-		self.Stats.SecondPlace = (second and IsValid(Places[2].Player)) and Places[2].Player or 0
-		self.Stats.ThirdPlace = (third and IsValid(Places[3].Player)) and Places[3].Player or 0
-
+		local numPlaces = math.Clamp(#Places, 0, 3)
 		-- Send them to the clients
-		net.Start("MelonRacer_SetLeader") -- less bandwidth to network ent indexes rather than strings
-			net.WritePlayer(self.Stats.FirstPlace)
-			net.WritePlayer(self.Stats.SecondPlace)
-			net.WritePlayer(self.Stats.ThirdPlace)
+		net.Start("MelonRacer_SetLeader")
+			net.WriteUInt(numPlaces, 2)
+
+			-- Set our leaders
+			for i = 1, numPlaces do
+				local ply = Places[i].Player
+
+				self.Stats.Places[i] = ply
+				net.WritePlayer(ply)
+			end
+
 		net.Broadcast()
 	end
 end
@@ -67,9 +66,11 @@ function GM:ResetStats()
 	if !self.Stats then self.Stats = {} end
 	self.Stats.BestLap		= 0
 	self.Stats.BestLapName 	= NO_NAME
-	self.Stats.FirstPlace = 0
-	self.Stats.SecondPlace = 0
-	self.Stats.ThirdPlace = 0
+	self.Stats.Places = {
+		NO_NAME,
+		NO_NAME,
+		NO_NAME
+	}
 end
 
 -- Start a whole new round

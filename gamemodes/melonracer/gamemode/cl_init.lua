@@ -170,9 +170,11 @@ function GM:ResetStats()
 
 	self.Stats.BestLap		= 0
 	self.Stats.BestLapName	= NO_NAME
-	self.Stats.FirstPlace = NO_NAME
-	self.Stats.SecondPlace = NO_NAME
-	self.Stats.ThirdPlace = NO_NAME
+	self.Stats.Places = {
+		NO_NAME,
+		NO_NAME,
+		NO_NAME
+	}
 end
 
 local dist = 10

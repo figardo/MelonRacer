@@ -66,9 +66,7 @@ function GM:Initialize()
 
 	self.Stats.BestLap		= 0
 	self.Stats.BestLapName 	= NO_NAME
-	self.Stats.FirstPlace = 0
-	self.Stats.SecondPlace = 0
-	self.Stats.ThirdPlace = 0
+	self.Stats.Places = {}
 
 	self.DupeEntsRegistered = false
 

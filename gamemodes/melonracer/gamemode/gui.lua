@@ -227,18 +227,13 @@ end
 net.Receive("MelonRacer_Lap", function() GAMEMODE:DoOtherLap() end)
 
 function GM:SetLeaders()
-	local first = net.ReadPlayer()
-	local second = net.ReadPlayer()
-	local third = net.ReadPlayer()
-
 	local na = self.IsGM13 and NO_NAME_CAPITAL or NO_NAME
-	local firstNick = first == 0 and na or first:Nick()
-	local secondNick = second == 0 and na or second:Nick()
-	local thirdNick = third == 0 and na or third:Nick()
 
-	self.Stats.FirstPlace = firstNick
-	self.Stats.SecondPlace = secondNick
-	self.Stats.ThirdPlace = thirdNick
+	local numPlaces = net.ReadUInt(2)
+
+	for i = 1, 3 do
+		self.Stats.Places[i] = i <= numPlaces and net.ReadPlayer():Nick() or na
+	end
 end
 net.Receive("Melonracer_SetLeader", function() GAMEMODE:SetLeaders() end)
 
@@ -264,10 +259,12 @@ function GM:DrawStats()
 	local h = ScrH()
 	local y = h * 0.1
 
+	local places = self.Stats.Places
+
 	surface.SetFont("DefaultShadow")
 	surface.SetTextColor(255, 255, 0)
 	surface.SetTextPos(x, y)
-	local first = one .. self.Stats.FirstPlace or NO_NAME
+	local first = one .. places[1] or NO_NAME
 	surface.DrawText(first)
 
 	local _, th = surface.GetTextSize(first)
@@ -275,14 +272,14 @@ function GM:DrawStats()
 
 	surface.SetTextColor(200, 200, 200)
 	surface.SetTextPos(x, y)
-	local second = two .. self.Stats.SecondPlace or NO_NAME
+	local second = two .. places[2] or NO_NAME
 	surface.DrawText(second)
 
 	_, th = surface.GetTextSize(second)
 	y = y + th
 
 	surface.SetTextPos(x, y)
-	local third = three .. self.Stats.ThirdPlace or NO_NAME
+	local third = three .. places[3] or NO_NAME
 	surface.DrawText(third)
 
 	surface.SetTextColor(120, 120, 120)
@@ -414,9 +411,11 @@ function GM:PlayerResetStats()
 	ply.Checkpoint = 0
 	ply.LapTime = 0
 
-	self.Stats.FirstPlace = ply:Nick()
-	self.Stats.SecondPlace = NO_NAME
-	self.Stats.ThirdPlace = NO_NAME
+	self.Stats.Places = {
+		ply:Nick(),
+		NO_NAME,
+		NO_NAME
+	}
 end
 
 function GM:StartRound()
