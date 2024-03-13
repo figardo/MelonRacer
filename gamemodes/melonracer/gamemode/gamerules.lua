@@ -38,9 +38,9 @@ function GM:UpdatePositions()
 
 		-- Send them to the clients
 		net.Start("MelonRacer_SetLeader") -- less bandwidth to network ent indexes rather than strings
-			MR_WritePlayer(self.Stats.FirstPlace)
-			MR_WritePlayer(self.Stats.SecondPlace)
-			MR_WritePlayer(self.Stats.ThirdPlace)
+			net.WritePlayer(self.Stats.FirstPlace)
+			net.WritePlayer(self.Stats.SecondPlace)
+			net.WritePlayer(self.Stats.ThirdPlace)
 		net.Broadcast()
 	end
 end
@@ -59,7 +59,7 @@ function GM:CheckRoundFinished(ply)
 	self.RestartingRound = true
 
 	net.Start("MelonRacer_Winner")
-		MR_WritePlayer(ply)
+		net.WritePlayer(ply)
 	net.Broadcast()
 end
 

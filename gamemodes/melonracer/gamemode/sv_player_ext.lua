@@ -61,7 +61,7 @@ function meta:DoneLap()
 	net.Send(self)
 
 	net.Start("MelonRacer_Lap")
-		MR_WritePlayer(self)
+		net.WritePlayer(self)
 		net.WriteBool(sr)
 		if sr then
 			net.WriteFloat(GAMEMODE.Stats.BestLap)

@@ -209,7 +209,7 @@ end
 net.Receive("MelonRacer_PlayerLap", function() GAMEMODE:DoLapZoom() end)
 
 function GM:DoOtherLap()
-	local ply = MR_ReadPlayer()
+	local ply = net.ReadPlayer()
 
 	if ply == 0 then return end
 
@@ -227,9 +227,9 @@ end
 net.Receive("MelonRacer_Lap", function() GAMEMODE:DoOtherLap() end)
 
 function GM:SetLeaders()
-	local first = MR_ReadPlayer()
-	local second = MR_ReadPlayer()
-	local third = MR_ReadPlayer()
+	local first = net.ReadPlayer()
+	local second = net.ReadPlayer()
+	local third = net.ReadPlayer()
 
 	local na = self.IsGM13 and NO_NAME_CAPITAL or NO_NAME
 	local firstNick = first == 0 and na or first:Nick()
@@ -357,7 +357,7 @@ end
 
 local wincol = Color(0, 255, 0)
 local function DeclareWinner()
-	local winner = MR_ReadPlayer()
+	local winner = net.ReadPlayer()
 	if !IsValid(winner) then return end
 
 	if hook.Run("MR_ShowWinner", winner) then return end
