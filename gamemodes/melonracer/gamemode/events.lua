@@ -154,7 +154,7 @@ end
 function MelonToPlayer(Melon)
 	if Melon.Player then return Melon.Player end
 
-	for _, ply in ipairs(player.GetAll()) do
+	for _, ply in player.Iterator() do
 		local plymel = ply:GetMelon()
 		if !IsValid(plymel) or plymel != Melon then continue end
 

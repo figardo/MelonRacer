@@ -36,7 +36,7 @@ function GM:UpdatePlayerLabels()
 	surface.SetTextColor(255, 255, 255, 255)
 	surface.SetFont("BrandingSmall")
 
-	for _, ply in ipairs(player.GetAll()) do
+	for _, ply in player.Iterator() do
 		local plymel = ply:GetMelon()
 		if !IsValid(plymel) then continue end
 

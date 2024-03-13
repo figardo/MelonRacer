@@ -1,10 +1,7 @@
 function GM:UpdatePositions()
 	local Places = {}
 
-	local plys = player.GetAll()
-	for i = 1, #plys do
-		local ply = plys[i]
-
+	for _, ply in player.Iterator() do
 		if !ply:IsConnected() then continue end
 
 		table.insert( Places, { Player = ply, Lap = ply.Laps, CheckPoint = ply.Checkpoint, CPTime = ply.LastCheckPointTime } )
@@ -77,9 +74,7 @@ end
 
 -- Start a whole new round
 function GM:StartRound()
-	local plys = player.GetAll()
-	for i = 1, #plys do
-		local ply = plys[i]
+	for _, ply in player.Iterator() do
 		if !IsValid(ply) or ply:Team() == TEAM_SPECTATOR then continue end
 
 		-- smash the player's melon if he has one
@@ -113,7 +108,7 @@ end
 concommand.Add("mr_restartround", function() GAMEMODE:StartRound() end)
 
 function GM:RaceStart()
-	for _, ply in ipairs(player.GetAll()) do
+	for _, ply in player.Iterator() do
 		ply.LapStart = CurTime()
 
 		local plymel = ply:GetMelon()

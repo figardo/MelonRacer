@@ -21,7 +21,7 @@ if SERVER then -- SERVER SIDED HOOKS
 
 	--[[ plays a car starting sound from each melon during the countdown
 	hook.Add("MR_PrepRound", "MR_RevSound", function() -- called when all players are respawned
-		for _, ply in ipairs(player.GetAll()) do
+		for _, ply in player.Iterator() do
 			local snd = CreateSound(ply, "vehicles/v8/v8_start_loop1.wav") -- created as an object so we can control when it stops
 			snd:Play()
 

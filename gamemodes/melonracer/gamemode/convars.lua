@@ -43,9 +43,8 @@ local function GetMapSettings()
 end
 
 local function KillTheBastards()
-	local plys = player.GetAll()
-	for i = 1, #plys do
-		plys[i]:Kill()
+	for _, ply in player.Iterator() do
+		ply:Kill()
 	end
 end
 
