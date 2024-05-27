@@ -226,7 +226,12 @@ net.Receive("MelonRacer_AskForTracks", AskForTracks)
 local checkpointent
 local triggerQueue = {}
 function GM:VerifyTrigger(v)
-	local tbl = v:Split(",")
+	local tbl
+	if v:find("") then
+		tbl = v:Split("") -- gmod hammer uses this character to separate outputs for some reason
+	else
+		tbl = v:Split(",")
+	end
 
 	local name = tbl[1]
 
